@@ -80,7 +80,7 @@ Policy gives us the answer to the question, what is the best action to choose to
 
 If our goal is to find the optimal policy, how do we choose the policy at the start? We can specify the policy with uniform probability. For example, imagine you have a robot that can go {west, east, north, south}. Its goal is to find the exit from the room, but it does not know where to go. Then for each action we can specify the policy as {0.25, 0.25, 0.25, 0.25}.
 
-**Our final equation is - $U(S) = \sum_{a} \pi(a | S)\sum_{S'}\sum_{r} p(S', r | S, a) * (r + \gamma U(S'))$**.
+### **Our final equation is - $U(S) = \sum_{a} \pi(a | S)\sum_{S'}\sum_{r} p(S', r | S, a) * (r + \gamma U(S'))$**.
 
 Now the questions are: What the **$U(S)$** value actually is? What is **$\gamma U(S')$**? What if we need to somehow evaluate the transition probabilities? How to evaluate policy?
 
@@ -92,8 +92,46 @@ We could calculate the value of the state and all the next states iteratively as
 
 ![Iter](https://user-images.githubusercontent.com/17081096/225998900-13c65a92-3239-4f77-a79f-de20a69b1e56.jpg)
 
-From the picture above we see that we have only one action with choosing probability = 1. We have transition probability model = 1, and we suppose that **$\gamma = 1$**. We have S0 -> S1 -> S2 -> S3 from bottom to top and we start from S0. We also have -1R for each step we do, to enforce the robot to do the task as fast as possible. The task itself is useless because we can not choose what to do, but it shows how to correctly calculate **$R + U(S')$**. At the first step our robot does not know about the values of the states, it starts to go "north" exploring and calculating. According to Bellman equation it gets the value of the first state **$U(S0) = 1 * 1 * (-1R + 1 * 0) = -1R$**. The same for the second state. And for the third state we assume that it knows in advance the reward of S3 to avoid using one additional iteration - **$U(S3) = 1 * 1 * (-1R + 1 * 10R) = 9R$**. After completing the task the episode ends and the robot starts again to tune values. On the second iteration for the first step it gets **$U(S0) = 1 * 1 * (-1R + 1 * -1R) = -2R$**. For the second - **$U(S0) = 1 * 1 * (-1R + 1 * 9R) = 8R$**. Third is the same.
-And for the last iteration it gets **$U(S0) = 1 * 1 * (-1R + 1 * 8R) = 7R$**. Further exploration will not change the values. And we now know that starting from S0 the robot will only get 7R.
+From the picture above we see that we have only one action with choosing probability = 1. We have transition probability model = 1, and we suppose that **$\gamma = 1$**. We have S0 -> S1 -> S2 -> S3 from bottom to top and we start from S0. We also have -1R for each step we do, to enforce the robot to complete the task as fast as possible. The task itself is useless because we can not choose what to do, but it shows how to correctly calculate **$R + U(S')$**. At the first step our robot does not know about the values of the states, it starts to go "north" exploring and calculating. According to the Bellman equation it gets the value of the first state **$U(S0) = 1 * 1 * (-1R + 1 * 0) = -1R$**. The same for the second state. And for the third state we assume that it knows in advance the reward of S3 to avoid using one additional iteration - **$U(S2) = 1 * 1 * (-1R + 1 * 10R) = 9R$**. After completing the task the episode ends and the robot starts again to tune values. On the second iteration for the first step it gets **$U(S0) = 1 * 1 * (-1R + 1 * -1R) = -2R$**. For the second - **$U(S1) = 1 * 1 * (-1R + 1 * 9R) = 8R$**. Third is the same.
+And for the last iteration it gets **$U(S0) = 1 * 1 * (-1R + 1 * 8R) = 7R$**. Further exploration will not change the values.
+
+### Discount
+As we see if $\gamma = 1$, it does not have an effect, but for tasks with long continuous nature we possibly want to decrease the influence of the state values that are far away from our current state. The less the $\gamma$ the more we focus only on the values of the states that are close to us. for example if $\gamma = 0$ you can see that all the further values of the next states will cancel out because $0 * U(S') = 0$, and we will only consider the value of the next R by doing the transition to the next state.
+
+There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common off policy Q-learning approach, to avoid messing with evaluating policy. Q-learning allows us to greedily choose the action according to the current action value (Q-value) and calculates transitions step by step.
+
+## Q values
+
+We now want to focus not on the value of the state but on the value of the particular action being in the particular state. It allows us to choose the most valuable action for the particular state.
+
+Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the Q value for the arm we just need to pull it. Let's say we used the arm 3 times and got {-1, 3, 1}, that give us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic result: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
+To avoid collecting the array of values to calculate the average, we can use iterative approach, because: **$$1/n \sum_{i=1}^n R_{i} = Q_{n} + 1/n * (R_{n} - Q_{n})$$** 
+Now we only need to keep the current Q and n representing the count of choosing the particular action.
+
+Can we replace n which we need to keep for every action and which needs to be increased every time, by some constant learning rate? Yes we can, and it will mean
+that we will only care about the average of the last n usages, it is also very useful if our probability distribution is not stationary. For example **$\alpha = 1 / 100$** would mean that we only care about the last 100 usages of the particular action, our final result is: **$$Q_{n+1} = Q_{n} + \alpha (R_{n} - Q_{n})$$**
+
+Similar to the U formula, the Q looks like this: **$$Q(S,a) = Q(S,a) + \alpha (R_{n} - Q(S,a) + \gamma maxQ(S', a))$$**
+**$$\pi(S) = argmax_{a} Q_{\pi}(S, a)$$**
+We see now that according to using maxQ for every further state along the path, our Q will have the maximum possible value for every state-action pair, and our policy now is to choose an action with maximum q-value.
+
+But now we encounter the problem, if we choose the action with maximum Q value we could end up with a non optimal result. If we can get some positive Q value for an action, we will not use actions that lead to unvisited states because their Qs = 0. Or imagine some states could give us random rewards with some probability distribution. We could have -1 for the first state and -2 for the second, but despite the fact that the second state could have the better distribution mean, we will always choose the first state, because we choose Q greedily. That leads us to the **Epsilon Greedy** algorithm.
+
+### Epsilon Greedy
+
+To give the algorithm the ability to explore and choose any possible action for every state we introduce some epsilon value. Let's say we have epsilon = 0.05 it means that now we would choose an action according to Q value greedily in 95% cases, but in 5% we will choose the action randomly. Pseudocode:
+```python
+action = RandomFloatBetween(0, 1) <= epsilon ? chooseRandom(actions) : maxQ(actions)
+```
+
+### Dyna
+The one of the simplest versions of Dyna is shown below:
+
+![Dyna](https://user-images.githubusercontent.com/17081096/226061516-59c91c23-3bde-4281-af3b-c370f4c5f233.jpg)
+
+When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our Q values.
+The application contains SimplePlanning.py that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
+
 
 
 
