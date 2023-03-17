@@ -43,7 +43,7 @@
  The same way we can describe the **State** of the chess board, where 0 is an empty field, 11 - pawn, 12 - bishop, 13 - knight, 14 - rook, 15 - queen, 16 - king for black,  for white - 21, 22, 23, 24, 25, 26 accordingly. 
  If you have some robot that has a camera the **State** can be an image where each particular pixel's color of the image is a number.
 
- Having the **State** we can define the number of **Actions** that we can perform to modify **State** and hence an **Environment**, to run through our task to achieve the goal. For tic-tac-toe our set of **Actions** can be something like this {0, 1, 2, 3, 4, 5, 6, 7, 8 } where each number represents placing the O or X in the appropriate cell, the number of **Actions** can be restricted depending on the **State**.
+ Having the **State** we can define the number of **Actions** that we can perform to modify **State** and hence an **Environment**, to run through our task to achieve the goal. For tic-tac-toe our set of **Actions** can be something like this {0, 1, 2, 3, 4, 5, 6, 7, 8} where each number represents placing the O or X in the appropriate cell, the number of **Actions** can be restricted depending on the **State**.
 
  Performing **Actions** we change the **Environment** that provides us a new **State**.
  
@@ -52,7 +52,7 @@
 ## Reward
 
 The question is what action we need to choose, being in a particular state, to complete the task and achieve our goal.
-Choosing an action we can define how good it is, to go to another state by using the **Reward**. For example if the robot sees the road and decides to go forward, it can get the 0 reward, but if it sees the wall right in front and decides to go forward, it can get the -1 reward, which signals that it is not a good decision to do so.
+Choosing an action we can define how good it is to go to another state by using the **Reward**. For example, if the robot sees the road and decides to go forward, it can get the 0 reward, but if it sees the wall right in front and decides to go forward, it can get the -1 reward, which signals that it is not a good decision to do so.
 
 Task can be **Continuous** when we just do something infinitely many times without the end adapting to the conditions over and over, and **Episodic** when it has some started conditions and it ends after several steps. For example Black Jack has a strict and small amount of states with reward at the end of an episode. Reward can be assigned after every step or only when an episode ends. For tasks with a small number of states having the episodic nature and getting a reward only when an episode ends, Monte Carlo algorithms often suit very well.
 
@@ -98,13 +98,13 @@ And for the last iteration it gets **$U(S0) = 1 * 1 * (-1R + 1 * 8R) = 7R$**. Fu
 ### Discount
 As we see if $\gamma = 1$, it does not have an effect, but for tasks with long continuous nature we possibly want to decrease the influence of the state values that are far away from our current state. The less the $\gamma$ the more we focus only on the values of the states that are close to us. for example if $\gamma = 0$ you can see that all the further values of the next states will cancel out because $0 * U(S') = 0$, and we will only consider the value of the next R by doing the transition to the next state.
 
-There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common off policy Q-learning approach, to avoid messing with evaluating policy. Q-learning allows us to greedily choose the action according to the current action value (Q-value) and calculates transitions step by step.
+There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common **off policy Q-learning** approach, to avoid to mess up with evaluating policy. Q-learning allows us to choose an action greedily, according to the current action value (Q-value) and calculates transitions step by step.
 
 ## Q values
 
 We now want to focus not on the value of the state but on the value of the particular action being in the particular state. It allows us to choose the most valuable action for the particular state.
 
-Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the Q value for the arm we just need to pull it. Let's say we used the arm 3 times and got {-1, 3, 1}, that give us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic result: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
+Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the Q value for the action we just need to pull the arm several times and get the avearage of the results. Let's say we used the arm 3 times and got {-1, 3, 1}, that give us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic results: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
 To avoid collecting the array of values to calculate the average, we can use iterative approach, because: **$$1/n \sum_{i=1}^n R_{i} = Q_{n} + 1/n * (R_{n} - Q_{n})$$** 
 Now we only need to keep the current Q and n representing the count of choosing the particular action.
 
@@ -130,7 +130,7 @@ The one of the simplest versions of Dyna is shown below:
 ![Dyna](https://user-images.githubusercontent.com/17081096/226061516-59c91c23-3bde-4281-af3b-c370f4c5f233.jpg)
 
 When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our Q values.
-The application contains SimplePlanning.py that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
+The application contains *SimplePlanning.py* that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
 
 
 
