@@ -52,7 +52,7 @@
 ## Reward
 
 The question is what action we need to choose, being in a particular state, to complete the task and achieve our goal.
-Choosing an action we can determine how good it is, to go to another state by using the **Reward**. For example if the robot sees the road and decides to go forward, it can get the 0 reward, but if it sees the wall right in front and decides to go forward, it can get the -1 reward, which signals that it is not a good decision to do so.
+Choosing an action we can define how good it is, to go to another state by using the **Reward**. For example if the robot sees the road and decides to go forward, it can get the 0 reward, but if it sees the wall right in front and decides to go forward, it can get the -1 reward, which signals that it is not a good decision to do so.
 
 Task can be **Continuous** when we just do something infinitely many times without the end adapting to the conditions over and over, and **Episodic** when it has some started conditions and it ends after several steps. For example Black Jack has a strict and small amount of states with reward at the end of an episode. Reward can be assigned after every step or only when an episode ends. For tasks with a small number of states having the episodic nature and getting a reward only when an episode ends, Monte Carlo algorithms often suit very well.
 
@@ -66,4 +66,21 @@ Having, **State**, **Action**, **Reward** we now can see how we move through the
 
 This picture shows us that being in a particular state and choosing a particular action we end up in the next state. Moreover we can see that even if we are in the same state and do the same action we can end up in different states. It is because we are not the ones who can influence the environment. Imagine you sell the cups, and you have 10 cups at the start (S10) and at the end of the day you have only 5 cups that moves you to (S5) and gives R = 5 (1 for each sold cup), but if someone broke 3 cups and you sold 2 cups that means you are still in (S5) but the R = 2.
 
-We now can create **transition probability** model - **p(S`, R | S, A)**. This function answers the question, what is the probability that being in **S**, choosing specific **A** you end up in **S`** with particular **R**? But as we know from example above that being in some **S** and choosing an **A** we can get any other **R** depending on the situation, then we get this - S (S`, R | S, A) - the sum must be 1 in case we have only one state to go to.
+We now can create **transition probability** model - **$\ p(S', r | S, a)$**. This function answers the question, what is the probability that being in **S**, choosing specific **a** you end up in **S'** with particular **r**? But as we know, from example above, that being in some **S** and choosing an **a** we can get any other **r** depending on the situation, then we get this - **$\sum_{r} p(S', r | S, a)$** - the sum must be 1 in case we have only one state to go to.
+
+For example, let’s say we have only one state and the probability that you sold 5 cups ending up in S5 with R = 5 is 0.95. It could mean that in 95 days from 100 no exceptions happen but in 5 cases someone breaks 1 - 5 cups down evenly 1% on each case. We now have a transition model with probabilities - $\ 0.95 + 0.01 + 0.01 + 0.01 + 0.01 + 0.01 = 1$. We also need to specify reward - **$\sum_{r} p(S', r | S, a) * r$**. Now we can calculate the value - $\ 0.95 * 5 + 0.01 * 4 + 0.01 * 3 + 0.01 * 2 + 0.01 + 1 + 0.01 * 0 = 4.85$.
+
+From the picture above we also see that being in **S** and choosing an **a** we can end up in different states that leads us to - **$\sum_{S'}\sum_{r} p(S', r | S, a) * r$**.
+
+But we also can choose different **a** that leads us to - **$\sum_{a} \pi(a | S)\sum_{S'}\sum_{r} p(S', r | S, a) * r$**, where $\pi(a | S)$ is our **Policy**.
+
+### Policy
+
+Policy gives us the answer to the question, what is the best action to choose to complete a task / achieve a goal with maximum efficiency. Policy is the probability of choosing an action being in a particular state. From the example above we can say that we have two actions - “go to sell cups”, “stay home” = {1, 0}, if we work 5 days per week our policy is $\pi(1 | S) = 5 / 7$ and $\pi(0 | S) = 2 / 7$, but if our goal is to make maximum amount of money, then our policy is $\pi(1 | S) = 1$ and $\pi(0 | S) = 0$.
+
+If our goal is to find the optimal policy, how do we choose the policy at the start? We can specify the policy with uniform probability. For example, imagine you have a robot that can go {west, east, north, south}. Its goal is to find the exit from the room, but it does not know where to go. Then for each action we can specify the policy as {0.25, 0.25, 0.25, 0.25}.
+
+Our final equation is - **$U(S) = \sum_{a} \pi(a | S)\sum_{S'}\sum_{r} p(S', r | S, a) * (r + \gamma U(S'))$**.
+
+Now the questions are: What the **$U(S)$** value actually is? What is **$\gamma U(S')$**? What if we need to somehow evaluate the transition probabilities? How to evaluate policy?
+
