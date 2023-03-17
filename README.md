@@ -15,7 +15,7 @@
  
  The size and structure of the lake can be easely adjusted right from *FrozenLakeMain.py*.
  
- Different TD algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc) can be added by extending from *StepControl.py* abstraction.
+ Different algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
  
  NN models can be added by extending from *RModel.py*.
  
@@ -80,7 +80,23 @@ Policy gives us the answer to the question, what is the best action to choose to
 
 If our goal is to find the optimal policy, how do we choose the policy at the start? We can specify the policy with uniform probability. For example, imagine you have a robot that can go {west, east, north, south}. Its goal is to find the exit from the room, but it does not know where to go. Then for each action we can specify the policy as {0.25, 0.25, 0.25, 0.25}.
 
-Our final equation is - **$U(S) = \sum_{a} \pi(a | S)\sum_{S'}\sum_{r} p(S', r | S, a) * (r + \gamma U(S'))$**.
+**Our final equation is - $U(S) = \sum_{a} \pi(a | S)\sum_{S'}\sum_{r} p(S', r | S, a) * (r + \gamma U(S'))$**.
 
 Now the questions are: What the **$U(S)$** value actually is? What is **$\gamma U(S')$**? What if we need to somehow evaluate the transition probabilities? How to evaluate policy?
+
+**$U(S)$** represents how good it is to be in a particular state. In case when you sell cups, you can define the policy equal to **{2/7, 5/7}** where action 0 is “stay home”, and action 1 is ”go to sell'. Imagine that we could end up only in one of two places **{S5, S3}** where in 
+70% we will end up in **S5** and 30% in **S3**. Being in **S5** we will get reward according to the example above, being in **S3** we constantly get R = 7. And when we “stay home” we will get R = 2 by doing some homework. Consider that **$\gamma U(S')$ = 0** for now and according to the equation - **$U(S) = 5/7 * (0.7 * 4.85 + 0.3 * 7) + 2/7 * (1 * 2) = 4.5$**.
+
+What if the **{S5, S3}** are not the end states and our task is not completed yet? What if we need to continue to choose the actions further to complete the task? Then to calculate the value of the root state we need to calculate the values of all other states we could end up in, starting from root **S**. We need not only **R**, but **$R + U(S')$**, leaving **$\gamma = 1$** for now.
+We could calculate the value of the state and all the next states iteratively as shown in the picture below.
+
+![Iter](https://user-images.githubusercontent.com/17081096/225998900-13c65a92-3239-4f77-a79f-de20a69b1e56.jpg)
+
+From the picture above we see that we have only one action with choosing probability = 1. We have transition probability model = 1, and we suppose that **$\gamma = 1$**. We have S0 -> S1 -> S2 -> S3 from bottom to top and we start from S0. We also have -1R for each step we do, to enforce the robot to do the task as fast as possible. The task itself is useless because we can not choose what to do, but it shows how to correctly calculate **$R + U(S')$**. At the first step our robot does not know about the values of the states, it starts to go "north" exploring and calculating. According to Bellman equation it gets the value of the first state **$U(S0) = 1 * 1 * (-1R + 1 * 0) = -1R$**. The same for the second state. And for the third state we assume that it knows in advance the reward of S3 to avoid using one additional iteration - **$U(S3) = 1 * 1 * (-1R + 1 * 10R) = 9R$**. After completing the task the episode ends and the robot starts again to tune values. On the second iteration for the first step it gets **$U(S0) = 1 * 1 * (-1R + 1 * -1R) = -2R$**. For the second - **$U(S0) = 1 * 1 * (-1R + 1 * 9R) = 8R$**. Third is the same.
+And for the last iteration it gets **$U(S0) = 1 * 1 * (-1R + 1 * 8R) = 7R$**. Further exploration will not change the values. And we now know that starting from S0 the robot will only get 7R.
+
+
+
+
+
 
