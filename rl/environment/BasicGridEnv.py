@@ -43,6 +43,7 @@ class BasicGridEnv(Env):
         self.__moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]
         self.action_names = ["left", "right", "top", "bottom"]
         self.action_labels = ["l", "r", "t", "b"]
+        self._draw_info = True
         self.action_space = spaces.Discrete(4)
         self.__width = 0
         self.__height = 0
@@ -143,6 +144,9 @@ class BasicGridEnv(Env):
                     if place == road:
                         cell = self.__visual_grid[x][y]
                         cell.set_color_and_update(255, 255, 0)
+
+    def draw_info(self, draw):
+        self._draw_info = draw
 
     def step(self, action):
         if self.__done:
@@ -253,6 +257,7 @@ class BasicGridEnv(Env):
                 color = self.__color_map[spot]
                 cell.set_default_color(color[0], color[1], color[2])
                 cell.reset_color()
+                cell.draw_text = self._draw_info
                 if cell.pos_x == self.__start_position[0] and cell.pos_y == self.__start_position[1]:
                     cell.set_color_and_update(pawn_color[0], pawn_color[1], pawn_color[2])
         draw = DrawGrid(visual_grid)
@@ -270,7 +275,7 @@ class BasicGridEnv(Env):
                 return state
             return None
         elif self._state_type == StateType.around:
-            raise Exception("Not implement")
+            raise Exception("Not implemented yet")
         else:
             spot = self.grid_map[y][x]
             self.grid_map[y][x] = pawn

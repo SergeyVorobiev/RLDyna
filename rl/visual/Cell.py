@@ -17,6 +17,7 @@ class Cell(Visual):
         self.default_color = color
         self.state_name = ""
         self.max_action = 0
+        self._text_size = 8
         self.max_q = 0
         self.max_action_name = ""
         self.v = 0
@@ -53,7 +54,7 @@ class Cell(Visual):
         self.rect.draw(self.win)
         if self.draw_text:
             self.label.setText(self.state_name)
-            self.label.setSize(8)
+            self.label.setSize(self._text_size)
             self.label.draw(self.win)
 
     def set_color_and_update(self, r, g, b):

@@ -5,8 +5,8 @@ from rl.environment.BasicGridEnv import BasicGridEnv, move_v, start_v, stay_v, S
 
 class FrozenLakeEnv(BasicGridEnv):
 
-    def __init__(self, state_type: StateType, rewards, screen_width=1600, screen_height=800,
-                 begin_from_start_if_get_in_hole: bool = False, grid_map=None, color_map=None):
+    def __init__(self, state_type: StateType, rewards, screen_width=1600, screen_height=800, cell_width=120,
+                 cell_height=80, begin_from_start_if_get_in_hole: bool = False, grid_map=None, color_map=None):
         if_hole = start_v if begin_from_start_if_get_in_hole else stay_v
         transition_map = [[rewards[0], move_v], [rewards[1], if_hole], [rewards[2], stay_v], [rewards[3], start_v],
                           [-1, move_v]]
@@ -24,6 +24,8 @@ class FrozenLakeEnv(BasicGridEnv):
         super().__init__(grid_map, state_type, transition_map, color_map)
         self._screen_width = screen_width
         self._screen_height = screen_height
+        self._cell_width = cell_width
+        self._cell_height = cell_height
         self._header = Text(Point(800, 20), "")
         self._header.setSize(14)
 
@@ -42,7 +44,7 @@ class FrozenLakeEnv(BasicGridEnv):
         self.__draw_header()
 
     def get_world_params(self):
-        return 'FrozenLake', self._screen_width, self._screen_height, 50, 50, 130, 80
+        return 'FrozenLake', self._screen_width, self._screen_height, 50, 50, self._cell_width, self._cell_height
 
     def after_world_created(self):
         self.__draw_header(create=True)
