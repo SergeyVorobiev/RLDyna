@@ -8,14 +8,14 @@ from rl.planning.RPlanning import RPlanning
 
 class SimplePlanning(RPlanning):
 
-    def __init__(self, plan_batch_size: int, memory_size: int):
+    def __init__(self, plan_batch_size: int, plan_step_size: int, memory_size: int):
         super().__init__(memory_size)
         self._plan_batch_size: int = plan_batch_size
         self.__error = 0
         self.__error2 = 0
         self._epsilon: float = 0
         self._plan_steps = 0
-        self._plan_steps_size = 50
+        self._plan_steps_size = plan_step_size
 
     def memorize(self, batch: Any):
         if batch[0] > self.__error:

@@ -13,6 +13,10 @@ class Dyna(object):
         self._state_preparator = state_preparator
         self._planning: RPlanning = planning
 
+    def clear_memory(self):
+        if self._planning is not None:
+            self._planning.clear_memory()
+
     def act(self, state):
         state = self.prepare_raw_state(state)
         return self._algorithm.pick_action(self._models, state)

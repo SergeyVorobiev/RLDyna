@@ -36,7 +36,7 @@ grid_map2 = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 3],
 
 grid_map3 = [[0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 3],
              [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0],
-             [0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+             [0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
              [1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
              [0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
              [0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
@@ -48,7 +48,7 @@ grid_map3 = [[0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
              [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
              [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
              [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0],
-             [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0],
+             [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
              [0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0],
              [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1],
              [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
@@ -70,9 +70,9 @@ iterations = 1000000
 
 need_colorize_q_map = True
 
-skip_frames = 1  # to speed up computations
+skip_frames = 20  # to speed up computations
 
-colorize_q_map_frames_skip = 400  # to speed up computations
+colorize_q_map_frames_skip = 1000  # to speed up computations
 
 slow_render = 0  # to see what is going on more carefully
 
@@ -84,18 +84,19 @@ draw_text = False
 def build_brain():
     n_states = env.get_x() * env.get_y()
     discount = 1
+    alpha = 1
 
     # Policy, 0.02 means that in 2% it will choose the random action to explore
     e_greedy = EGreedyRPolicy(0.02)
 
-    # How many happened situations we can memorize and how often we should use this information for pretraining.
-    planning = SimplePlanning(plan_batch_size=300, memory_size=n_states * env.action_space.n)
+    # memory_size - Capacity of memory, if number of lines is exceeded, then just forget oldest.
+    # plan_batch_size - Number of lines that needs to be randomly obtained from the memory to train.
+    # plan_step_size - Number of steps that needs to be passed to start planning process.
+    planning = SimplePlanning(plan_batch_size=n_states, plan_step_size=1000, memory_size=n_states * env.action_space.n)
     # planning = NoPlanning()
 
     # Iterative algorithm
-    algorithm = Q(e_greedy, discount=discount)
-    # sarsa = SARSA(e_greedy, alpha=alpha, discount=discount)
-    # expected_sarsa = ExpectedSARSA(e_greedy, alpha=alpha, discount=discount)
+    algorithm = Q(e_greedy, alpha=alpha, discount=discount)
 
     # Model keeps the previously learned information and get the data back when needed.
     # It is usually can be tabular or neural network.
@@ -144,6 +145,7 @@ if __name__ == '__main__':
         # if we achieve the goal, print some information, reset state and repeat.
         if done:
             score = player_prop['max_score']
+            # used_brain.clear_memory()
             if key and score == 2:
                 key = False
                 print(i)
