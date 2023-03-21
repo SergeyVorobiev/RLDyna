@@ -64,7 +64,7 @@ Having, **State**, **Action**, **Reward** we now can see how we move through the
 
 ## The Bellman equation
 
-This picture shows us that being in a particular state and choosing a particular action we end up in the next state. Moreover we can see that even if we are in the same state and do the same action we can end up in different states. It is because we are not the ones who can influence the environment. Imagine you sell the cups, and you have 10 cups at the start (S10) and at the end of the day you have only 5 cups that moves you to (S5) and gives R = 5 (1 for each sold cup), but if someone broke 3 cups and you sold 2 cups that means you are still in (S5) but the R = 2.
+This picture shows us that being in a particular state and choosing a particular action we end up in the next state. Moreover we can see that even if we are in the same state and do the same action we can end up in different states or with different rewards. It is because we are not the ones who can influence the environment. Imagine you sell the cups, and you have 10 cups at the start (S10) and at the end of the day you have only 5 cups that moves you to (S5) and gives R = 5 (1 for each sold cup), but if someone broke 3 cups and you sold 2 cups that means you are still in (S5) but the R = 2.
 
 We now can create **transition probability** model - **$\ p(S', r | S, a)$**. This function answers the question, what is the probability that being in **S**, choosing specific **a** you end up in **S'** with particular **r**? But as we know, from example above, that being in some **S** and choosing an **a** we can get any other **r** depending on the situation, then we get this - **$\sum_{r} p(S', r | S, a)$** - the sum must be 1 in case we have only one state to go to.
 
@@ -132,7 +132,7 @@ The one of the simplest versions of Dyna is shown below:
 When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our Q values.
 The application contains *SimplePlanning.py* that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
 
-
+![FL2](https://user-images.githubusercontent.com/17081096/226649522-0c41e748-bd2d-4d6b-a5bb-6db7b7e8c8bc.jpg)
 
 
 
