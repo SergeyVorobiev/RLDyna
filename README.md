@@ -1,19 +1,20 @@
 # RLDyna
  Reinforcement learning from scratch (Frozen Lake).
  
- ![FrozenLake](https://user-images.githubusercontent.com/17081096/225944512-9061e8d4-694f-4d0e-b8b2-5b8d314e538c.jpg)
+ ![FrozenLake](https://github.com/SergeyVorobiev/RLDyna/blob/f02844dd02f5c142598e3696ab7dbdd734b6cb36/FL2.jpg)
 
  A little project for pyhton 3+ that shows an essence of reinforcement learning.
  
  The project uses 'graphics' module that can be installed automatically from PyCharm or by using - *pip install graphics*, and gym - *pip install gym*.
  
- To use NN you need to install tensorflow + keras, the project uses 2.11v for both, depending on your versions, you probably will need to reimport some packages        related to this libraries and also install CUDA.
+ To use NN you need to install tensorflow + keras, the project uses 2.11v for both, depending on your versions, you probably will need to reimport some packages        related to the versions of this libraries and also install CUDA.
  
  The robot walks on the lake trying to find the exit.
  
  The robot uses:
  
  **temporal difference off policy control tabular Q-learning** method + simple CNN.
+ 
  **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
  
  The entry point (main) *FrozenLakeMain.py*.
@@ -109,7 +110,7 @@ There are many modifications of the Bellman equation and different algorithms ab
 
 We now want to focus not on the value of the state but on the value of the particular action being in the particular state. It allows us to choose the most valuable action for the particular state.
 
-Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the Q value for the action we just need to pull the arm several times and get the avearage of the results. Let's say we used the arm 3 times and got {-1, 3, 1}, that give us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic results: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
+Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the Q value for the action we just need to pull the arm several times and get the avearage of the results. Let's say we used the arm 3 times and got {-1, 3, 1}, that gives us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic results: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
 To avoid collecting the array of values to calculate the average, we can use iterative approach, because: **$$1/n \sum_{i=1}^n R_{i} = Q_{n} + 1/n * (R_{n} - Q_{n})$$** 
 Now we only need to keep the current Q and n representing the count of choosing the particular action.
 
@@ -137,7 +138,21 @@ The one of the simplest versions of Dyna is shown below:
 When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our Q values.
 The application contains *SimplePlanning.py* that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
 
-![FL2](https://github.com/SergeyVorobiev/RLDyna/blob/f02844dd02f5c142598e3696ab7dbdd734b6cb36/FL2.jpg)
+
+## Table & NN
+
+![NN_Table](https://user-images.githubusercontent.com/17081096/227339659-cadb5984-8e4d-4e89-bd03-94e843634be3.jpg)
+
+From the picture above we can see that the table approach is very good for storing and reusing values without distortions that allows us to perform precise computations. NN on the other hand is good for working with states which represent complex data containing patterns to recognize. 
+NN is a function that produces the output depending on the weights. It adjusts the weights depending on the errors between predictions and real outputs. The more various data you use to train weights the better weights will be adjusted. 
+
+If we train the model for one specific set of states, then it can upset the outputs for another set of states. If we do not see some state before, NN will still produce values depending on the current weights. According to the nature of NN there are several things that we need to care about:
+
+* Wrong setup or usage of NN can easily lead to divergence.
+* NN can decide that some particular states are too bad to visit based on current weights, even if it has never seen them before. It leads to very bad convergence, and means that we need to build a complex system which would contain some critics, advisers, estimators etc.
+* NN can produce cycles because for some unvisited states it still produces random values. If we have a state A, and an action with max value that leads to B, then B could potentially contain the action with random max value leading back to A. Thus we will bounce back and force between two actions. Such loops can have more than two states: A->B->C->D->A.
+
+In our example we use a very simple CNN that could be converged to the optimum pretty fast for small maps.
 
 
 
