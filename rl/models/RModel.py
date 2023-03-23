@@ -24,15 +24,15 @@ class RModel(object):
         ...
 
     @abstractmethod
-    def update_q(self, state: Any, action: int, q: float, model_index: int = 0):
+    def update_q(self, state: Any, action: int, q: float, episode_done: bool, model_index: int = 0):
         ...
 
     @abstractmethod
-    def update_v(self, state: Any, v: float, model_index: int = 0):
+    def update_v(self, state: Any, v: float, episode_done: bool, model_index: int = 0):
         ...
 
     @abstractmethod
-    def update_q_values(self, state: Any, values, model_index: int = 0):
+    def update_q_values(self, state: Any, values, episode_done: bool, model_index: int = 0):
         ...
 
     @abstractmethod

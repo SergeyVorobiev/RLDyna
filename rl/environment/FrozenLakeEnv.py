@@ -5,7 +5,7 @@ from rl.environment.BasicGridEnv import BasicGridEnv, move_v, start_v, stay_v, S
 
 class FrozenLakeEnv(BasicGridEnv):
 
-    def __init__(self, state_type: StateType, rewards, screen_width=1600, screen_height=800, cell_width=120,
+    def __init__(self, rewards, state_type: StateType=None, screen_width=None, screen_height=None, cell_width=120,
                  cell_height=80, begin_from_start_if_get_in_hole: bool = False, grid_map=None, color_map=None):
         if_hole = start_v if begin_from_start_if_get_in_hole else stay_v
         transition_map = [[rewards[0], move_v], [rewards[1], if_hole], [rewards[2], stay_v], [rewards[3], start_v],
@@ -22,8 +22,16 @@ class FrozenLakeEnv(BasicGridEnv):
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [4, 0, 0, 1, 0, 0, 0, 0]]
         super().__init__(grid_map, state_type, transition_map, color_map)
-        self._screen_width = screen_width
-        self._screen_height = screen_height
+        self._left_padding = 50
+        self._right_padding = 50
+        if screen_width is None:
+            self._screen_width = self._left_padding + self._right_padding + cell_width * self.get_x()
+        else:
+            self._screen_width = screen_width
+        if screen_height is None:
+            self._screen_height = self._left_padding + self._right_padding + cell_height * self.get_y()
+        else:
+            self._screen_height = screen_height
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._header = Text(Point(800, 20), "")
@@ -44,7 +52,8 @@ class FrozenLakeEnv(BasicGridEnv):
         self.__draw_header()
 
     def get_world_params(self):
-        return 'FrozenLake', self._screen_width, self._screen_height, 50, 50, self._cell_width, self._cell_height
+        return 'FrozenLake', self._screen_width, self._screen_height, self._left_padding, self._right_padding, \
+               self._cell_width, self._cell_height
 
     def after_world_created(self):
         self.__draw_header(create=True)

@@ -7,9 +7,10 @@ from rl.policy.RPolicy import RPolicy
 
 class EGreedyRPolicy(RPolicy):
 
-    def __init__(self, epsilon: float, threshold: float = 0):
+    def __init__(self, epsilon: float, threshold: float = 0, improve_step: float = 0):
         self._epsilon: float = epsilon
         self._threshold: float = threshold
+        self._improve_step: float = improve_step
 
     def pick(self, values):
         if random.uniform(0, 1) < self._epsilon:
@@ -31,9 +32,9 @@ class EGreedyRPolicy(RPolicy):
             return max_action_probability
         return any_action_probability
 
-    def improve(self, value):
+    def improve(self):
         if self._epsilon > self._threshold:
-            self._epsilon -= value
+            self._epsilon -= self._improve_step
 
 
 

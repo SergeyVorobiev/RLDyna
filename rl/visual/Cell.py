@@ -22,6 +22,7 @@ class Cell(Visual):
         self.max_action_name = ""
         self.v = 0
         self.qs = []
+        self.a_labels = []
         self.optimal_q = 0
         self.actions: [Action] = []
         self.optimal_actions_count = 0
@@ -30,7 +31,7 @@ class Cell(Visual):
         self.is_target = False
         sp = self.rect.p1
         ep = self.rect.p2
-        self.round_number = 2
+        self.round_number = 1
         self.label = Text(Point((ep.x - sp.x) / 2 + sp.x, (ep.y - sp.y) / 2 + sp.y),
                           str(round(value, self.round_number)))
 
@@ -67,14 +68,16 @@ class Cell(Visual):
     def __get_str(self, head, value):
         return head + str(round(value, self.round_number)) + "\n"
 
-    def update_qstext(self):
+    def update_qstext(self, short=False):
         if self.draw_text:
-            text = self.state_name + "\n"
+            text = self.state_name
             tqs = []
-            for q in self.qs:
-                tqs.append(round(q, self.round_number))
-            text += "\n" + "q: " + str(tqs)
-            text += "\n\n" + str(round(self.max_q, self.round_number))
+            if self.qs.__len__() > 0:
+                if not short:
+                    for q in self.qs:
+                        tqs.append(round(q, self.round_number))
+                    text += "\n" + "q: " + str(tqs)
+                text += "\n" + str(round(self.max_q, self.round_number)) + " " + self.a_labels[self.max_action]
             self.label.setText(text)
 
     def update_text(self):

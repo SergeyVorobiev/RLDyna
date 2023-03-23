@@ -16,7 +16,7 @@ class StepControl(RAlgorithm):
         state, action, reward, next_state, done, env_props = batch[0]
         return self.train_sample(models, state, action, reward, next_state, done, env_props), batch
 
-    def train_from_past(self, models: [RModel], batch) -> (float, Any):
+    def plan(self, models: [RModel], batch) -> (float, Any):
         state, action, reward, next_state, done, env_props = batch[0]
         return self.train_sample(models, state, action, reward, next_state, done, env_props), batch
 

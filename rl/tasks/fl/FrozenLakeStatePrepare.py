@@ -1,8 +1,8 @@
-from rl.models.RStatePreparator import RStatePreparator
+from rl.models.stateprepares.RStatePrepare import RStatePrepare
 
 
 # Allows convert or modify every row state of environment before performing the calculations.
-class FrozenLakeStatePreparator(RStatePreparator):
+class FrozenLakeStatePrepare(RStatePrepare):
 
     def __init__(self, y):
         self._y = y

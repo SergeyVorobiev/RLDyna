@@ -75,18 +75,18 @@ class TableSingle(RTableModel):
         state_wrapper: State = self.__get_state(state, model_index)
         return state_wrapper.v
 
-    def update_q(self, state: Any, action: int, q: float, model_index: int = 0):
+    def update_q(self, state: Any, action: int, q: float, episode_done: bool, model_index: int = 0):
         state_wrapper: State = self.__get_state(state, model_index)
         state_wrapper.optimal_actions[action].q = q
 
     def __get_state(self, state, model_index) -> State:
         return self._models[model_index].states_table[state]
 
-    def update_v(self, state: Any, v: float, model_index: int = 0):
+    def update_v(self, state: Any, v: float, episode_done: bool, model_index: int = 0):
         state_wrapper: State = self.__get_state(state, model_index)
         state_wrapper.v = v
 
-    def update_q_values(self, state: Any, values, model_index: int = 0):
+    def update_q_values(self, state: Any, values, episode_done: bool, model_index: int = 0):
         raise Exception("Table model did not implement this method")
 
 

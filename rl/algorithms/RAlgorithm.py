@@ -25,7 +25,7 @@ class RAlgorithm(RLearnMemory):
 
     # for planning. returns - error, batch
     @abstractmethod
-    def train_from_past(self, models: [RModel], batch) -> (float, Any):
+    def plan(self, models: [RModel], batch) -> (float, Any):
         ...
 
     @abstractmethod

@@ -13,5 +13,5 @@ class RPolicy(object):
         ...
 
     @abstractmethod
-    def improve(self, value):
+    def improve(self):
         ...

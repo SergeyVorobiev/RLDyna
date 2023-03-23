@@ -26,5 +26,5 @@ class Q(StepControl):
             g = reward + self._discount * next_max_q
         error = g - q
         q = q + self._alpha * error
-        models[0].update_q(state, action, q)
+        models[0].update_q(state, action, q, done)
         return abs(error)

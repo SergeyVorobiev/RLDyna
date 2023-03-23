@@ -30,6 +30,13 @@ class StateType(Enum):
     blind = 0
     around = 1
     all_map = 2
+    none = 3
+
+
+class DrawInfo(Enum):
+    short = 0
+    full = 1
+    none = 2
 
 
 class BasicGridEnv(Env):
@@ -42,13 +49,16 @@ class BasicGridEnv(Env):
         self.__color_map = color_map
         self.__moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]
         self.action_names = ["left", "right", "top", "bottom"]
-        self.action_labels = ["l", "r", "t", "b"]
+        self.action_labels = ["<-", "->", "^", "v"]
         self._draw_info = True
+        self._short = False
         self.action_space = spaces.Discrete(4)
         self.__width = 0
         self.__height = 0
         self._draw_map_limiter = 0
         self._draw_map_frame_skip = 0
+        if state_type is None:
+            state_type = StateType.none
         self._state_type = state_type
         self.__build_width_height()
         self.observation_space = spaces.Box(np.array([0, 0]), np.array([self.__width, self.__height]), dtype=np.int32)
@@ -75,6 +85,9 @@ class BasicGridEnv(Env):
         self._steps = 0
         self._max_steps = 0
         self._episode_steps = 0
+
+    def set_state_type(self, state_type: StateType):
+        self._state_type = state_type
 
     def _get_n_states(self):
         size = 0
@@ -145,8 +158,15 @@ class BasicGridEnv(Env):
                         cell = self.__visual_grid[x][y]
                         cell.set_color_and_update(255, 255, 0)
 
-    def draw_info(self, draw):
-        self._draw_info = draw
+    def draw_info(self, info_type: DrawInfo):
+        if info_type == DrawInfo.none:
+            self._draw_info = False
+        elif info_type == DrawInfo.short:
+            self._draw_info = True
+            self._short = True
+        else:
+            self._draw_info = True
+            self._short = False
 
     def step(self, action):
         if self.__done:
@@ -193,6 +213,8 @@ class BasicGridEnv(Env):
             state = np.array(self.__position, dtype=np.int32)
         elif self._state_type == StateType.around:
             raise Exception("Not implement")
+        elif self._state_type == StateType.none:
+            raise Exception("State type is wrong")
         else:
             spot = self.grid_map[self.__position[1]][self.__position[0]]
             self.grid_map[self.__position[1]][self.__position[0]] = pawn
@@ -254,6 +276,7 @@ class BasicGridEnv(Env):
             for cell in row:
                 spot = self.grid_map[cell.pos_y][cell.pos_x]
                 cell.state_name = str(cell.pos_x) + " - " + str(cell.pos_y)
+                cell.a_labels = self.action_labels
                 color = self.__color_map[spot]
                 cell.set_default_color(color[0], color[1], color[2])
                 cell.reset_color()
@@ -294,12 +317,14 @@ class BasicGridEnv(Env):
                     if state is None:
                         continue
                     if q_supplier is not None:
-                        cell.set_q_values(q_supplier(state))
+                        if self.grid_map[cell.pos_y][cell.pos_x] == 0:
+                            cell.set_q_values(q_supplier(state))
                     if u_supplier is not None:
-                        cell.set_u_value(u_supplier(state))
+                        if self.grid_map[cell.pos_y][cell.pos_x] == 0:
+                            cell.set_u_value(u_supplier(state))
                     if draw_path and cell.marked and cell.pos_x != self.__position[0] and cell.pos_y != self.__position[1]:
                         cell.set_color_and_update(200, 100, 255)
-                    cell.update_qstext()
+                    cell.update_qstext(self._short)
 
     @staticmethod
     def __get_cell_value(cell):

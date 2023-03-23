@@ -38,6 +38,9 @@ class Dyna(object):
         state = self.prepare_raw_state(state)
         return self._algorithm.get_v(self._models, state)
 
+    def improve_policy(self):
+        self._algorithm.get_policy().improve()
+
     def get_q_values(self, state):
         state = self.prepare_raw_state(state)
         return self._algorithm.get_q_values(self._models, state)

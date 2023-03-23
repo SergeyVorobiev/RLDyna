@@ -31,7 +31,7 @@ class SimplePlanning(RPlanning):
             if self._memory.__len__() >= self._plan_batch_size:
                 batch = random.sample(self._memory, self._plan_batch_size)
                 for error, sample in batch:
-                    _ = algorithm.train_from_past(models, sample)
+                    _ = algorithm.plan(models, sample)
                     # print(error)
                     # self._memory.append((error, sample))
                     # while error > self.__error2:

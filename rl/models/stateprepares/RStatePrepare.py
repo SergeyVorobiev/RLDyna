@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class RStatePreparator:
+class RStatePrepare:
 
     @abstractmethod
     def prepare_raw_state(self, raw_state):
