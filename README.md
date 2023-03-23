@@ -7,9 +7,14 @@
  
  The project uses 'graphics' module that can be installed automatically from PyCharm or by using - *pip install graphics*, and gym - *pip install gym*.
  
+ To use NN you need to install tensorflow + keras, the project uses 2.11v for both, depending on your versions, you probably will need to reimport some packages        related to this libraries and also install CUDA.
+ 
  The robot walks on the lake trying to find the exit.
  
- The robot uses **temporal difference off policy control tabular Q-learning** method.
+ The robot uses:
+ 
+ **temporal difference off policy control tabular Q-learning** method + simple CNN.
+ **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
  
  The entry point (main) *FrozenLakeMain.py*.
  
@@ -132,7 +137,7 @@ The one of the simplest versions of Dyna is shown below:
 When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our Q values.
 The application contains *SimplePlanning.py* that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
 
-![FL2](https://user-images.githubusercontent.com/17081096/226649522-0c41e748-bd2d-4d6b-a5bb-6db7b7e8c8bc.jpg)
+![FL2](https://github.com/SergeyVorobiev/RLDyna/blob/f02844dd02f5c142598e3696ab7dbdd734b6cb36/FL2.jpg)
 
 
 
