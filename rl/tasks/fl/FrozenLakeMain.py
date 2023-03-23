@@ -17,12 +17,14 @@ rewards = [-1, -50, -30, 30]
 
 color_map = [[0, 255, 255], [0, 0, 255], [0, 0, 0], [255, 255, 0], [0, 255, 0], [255, 0, 0]]
 
-grid_map = grid_map2  # 4, 3, 2, 1
+# Select grid (CNN for 1 - ~3000 - 6000+ steps to solve, CNN for 2 - ~30000 - 60000+ steps to solve, for current ver.)
+grid_map = grid_map1  # 4, 3, 2, 1
 
 env = FrozenLakeEnv(rewards=rewards, grid_map=grid_map[0], cell_width=grid_map[1], cell_height=grid_map[2],
                     color_map=color_map, begin_from_start_if_get_in_hole=False)
 
-selected_agent = "CNNQ"  # TabQ, CNNQ
+# Select agent
+selected_agent = "TabQ"  # TabQ, CNNQ
 
 iterations = 1000000
 
@@ -33,8 +35,6 @@ skip_frames = 50  # to speed up computations
 colorize_q_map_frames_skip = 49  # to speed up computations
 
 slow_render = 0  # to see what is going on more carefully
-
-draw_text = True
 
 clear_memory_after_each_episode = True
 

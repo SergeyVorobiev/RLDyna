@@ -49,7 +49,7 @@ class BasicGridEnv(Env):
         self.__color_map = color_map
         self.__moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]
         self.action_names = ["left", "right", "top", "bottom"]
-        self.action_labels = ["<-", "->", "^", "v"]
+        self.action_labels = ["<", ">", "^", "v"]
         self._draw_info = True
         self._short = False
         self.action_space = spaces.Discrete(4)
