@@ -36,4 +36,4 @@ class TabularQAgent(RDynaAgentBuilder):
         models = [TableSingle(n_states=n_states, n_actions=env.action_space.n)]
 
         return Dyna(models=models, algorithm=algorithm, planning=planning,
-                     state_preparator=FrozenLakeStatePrepare(env.get_y()))
+                    state_prepare=FrozenLakeStatePrepare(env.get_y()))

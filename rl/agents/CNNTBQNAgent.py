@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.Q import Q
+from rl.algorithms.TreeBackup import TreeBackup
 from rl.dyna.Dyna import Dyna
 from rl.environment.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.CNNQModel import CNNQModel, MaxQ
@@ -8,29 +8,23 @@ from rl.policy.EGreedyRPolicy import EGreedyRPolicy
 from rl.tasks.fl.FrozenLakeCNNStatePrepare import FrozenLakeCNNStatePrepare
 
 
-class CNNQAgent(RDynaAgentBuilder):
+class CNNTBQNAgent(RDynaAgentBuilder):
 
     def build_agent(self, env: BasicGridEnv):
+
         env.set_state_type(StateType.all_map)
         n_states = env.get_x() * env.get_y()
-        discount = 0.99
+        discount = 1
         alpha = 1
+        steps = 3
 
         e_greedy = EGreedyRPolicy(0.4, threshold=0.02, improve_step=0.02)
-
-        # memory_size - Capacity of memory, if number of lines is exceeded, then just forget oldest.
-        # plan_batch_size - Number of lines that needs to be randomly obtained from the memory to train.
-        # plan_step_size - Number of steps that needs to be passed to start planning process.
         planning = SimplePlanning(plan_batch_size=n_states, plan_step_size=n_states,
                                   memory_size=n_states * env.action_space.n)
         # planning = NoPlanning()
-
-        # Iterative algorithm
-        algorithm = Q(e_greedy, alpha=alpha, discount=discount)
-
-        # Model keeps the previously learned information and get the data back when needed.
-        models = [CNNQModel(input_shape=(env.get_y(), env.get_x(), 1), n_actions=env.action_space.n, batch_size=500,
-                            epochs=30, steps_to_train=200, max_q=MaxQ.mixed)]
+        algorithm = TreeBackup(e_greedy, alpha=alpha, discount=discount, n_step=steps)
+        models = [CNNQModel(input_shape=(env.get_y(), env.get_x(), 1), n_actions=env.action_space.n,
+                            batch_size=1000, epochs=30, steps_to_train=400, max_q=MaxQ.from_support)]
 
         return Dyna(models=models, algorithm=algorithm, planning=planning,
                     state_prepare=FrozenLakeCNNStatePrepare())

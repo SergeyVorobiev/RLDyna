@@ -85,6 +85,10 @@ class BasicGridEnv(Env):
         self._steps = 0
         self._max_steps = 0
         self._episode_steps = 0
+        self._q_supplier = None
+        self._u_supplier = None
+        self._draw_map = None
+        self._draw_path = None
 
     def set_state_type(self, state_type: StateType):
         self._state_type = state_type
@@ -334,7 +338,13 @@ class BasicGridEnv(Env):
     def after_render(self):
         ...
 
-    def render(self, mode="human", q_supplier=None, u_supplier=None, draw_map = False, draw_path = False):
+    def draw_values_setup(self, q_supplier=None, u_supplier=None, draw_map=False, draw_path=False):
+        self._q_supplier = q_supplier
+        self._u_supplier = u_supplier
+        self._draw_map = draw_map
+        self._draw_path = draw_path
+
+    def render(self, mode="human"):
         if self.win is None:
             self.__create_and_draw_world()
         else:
@@ -342,7 +352,7 @@ class BasicGridEnv(Env):
             if self.frame_count == self._skip_frames:
                 self.frame_count = 0
                 self.win.update()
-                self.__update_values(q_supplier, u_supplier, draw_map, draw_path)
+                self.__update_values(self._q_supplier, self._u_supplier, self._draw_map, self._draw_path)
                 self.after_render()
             else:
                 self.frame_count += 1
