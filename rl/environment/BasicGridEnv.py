@@ -31,6 +31,7 @@ class StateType(Enum):
     around = 1
     all_map = 2
     none = 3
+    all_map_and_around = 4
 
 
 class DrawInfo(Enum):
@@ -210,21 +211,30 @@ class BasicGridEnv(Env):
             self.game_done()
         self.__player_prop['score'] = self._score
         self.__player_prop['max_score'] = self._max_score
-        return self._get_state(), reward, self.__done, self.__player_prop
+        return self._get_state(self.__position[0], self.__position[1]), reward, self.__done, self.__player_prop
 
-    def _get_state(self):
-        if self._state_type == StateType.blind:
-            state = np.array(self.__position, dtype=np.int32)
-        elif self._state_type == StateType.around:
-            raise Exception("Not implement")
-        elif self._state_type == StateType.none:
-            raise Exception("State type is wrong")
+    def _get_around_state(self):
+        x_left = self.__position[0] - 1
+        x_right = self.__position[0] + 1
+        y_up = self.__position[1] - 1
+        y_down = self.__position[1] + 1
+        if x_left < 0:
+            x_left = wall
         else:
-            spot = self.grid_map[self.__position[1]][self.__position[0]]
-            self.grid_map[self.__position[1]][self.__position[0]] = pawn
-            state = np.array(self.grid_map)
-            self.grid_map[self.__position[1]][self.__position[0]] = spot
-        return state
+            x_left = self.grid_map[self.__position[1]][x_left]
+        if x_right == self.__width:
+            x_right = wall
+        else:
+            x_right = self.grid_map[self.__position[1]][x_right]
+        if y_up < 0:
+            y_up = wall
+        else:
+            y_up = self.grid_map[y_up][self.__position[0]]
+        if y_down == self.__height:
+            y_down = wall
+        else:
+            y_down = self.grid_map[y_down][self.__position[0]]
+        return np.array([[x_left, x_right], [y_up, y_down]])
 
     @abstractmethod
     def game_done(self):
@@ -242,7 +252,7 @@ class BasicGridEnv(Env):
                 for cell in row:
                     cell.marked = False
                     cell.reset_color()
-        return self._get_state()
+        return self._get_state(self.__position[0], self.__position[1])
 
     def set_skip_frame(self, skip_frames: int):
         self._skip_frames = skip_frames
@@ -294,20 +304,25 @@ class BasicGridEnv(Env):
         self.__visual_grid = visual_grid
         self.after_world_created()
 
-    def _get_state_for_values(self, x, y):
+    def _get_state(self, x, y):
         if self._state_type == StateType.blind:
             state = np.array([x, y], dtype=np.int32)
-            spot = self.grid_map[y][x]
-            if spot == road or spot == start:
-                return state
-            return None
         elif self._state_type == StateType.around:
-            raise Exception("Not implemented yet")
-        else:
+            return self._get_around_state()
+        elif self._state_type == StateType.none:
+            raise Exception("State type is wrong")
+        elif self._state_type == StateType.all_map:
             spot = self.grid_map[y][x]
             self.grid_map[y][x] = pawn
             state = np.array(self.grid_map)
             self.grid_map[y][x] = spot
+        else:
+            spot = self.grid_map[y][x]
+            self.grid_map[y][x] = pawn
+            state1 = np.array(self.grid_map)
+            self.grid_map[y][x] = spot
+            state2 = self._get_around_state()
+            state = [state1, state2]
         return state
 
     def __update_values(self, q_supplier, u_supplier, draw_map = False, draw_path = False):
@@ -317,7 +332,7 @@ class BasicGridEnv(Env):
         if q_supplier is not None or u_supplier is not None:
             for row in self.__visual_grid:
                 for cell in row:
-                    state = self._get_state_for_values(cell.pos_x, cell.pos_y)
+                    state = self._get_state(cell.pos_x, cell.pos_y)
                     if state is None:
                         continue
                     if q_supplier is not None:

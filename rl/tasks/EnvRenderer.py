@@ -13,7 +13,6 @@ class EnvRenderer:
 
         for i in range(iterations):
 
-            # q_supplier - just to draw q values in the cells.
             env.render()
 
             # get action the agent decided to use according to the current state.

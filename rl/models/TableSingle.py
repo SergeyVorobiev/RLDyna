@@ -18,15 +18,13 @@ class Table(object):
 
 class TableSingle(RTableModel):
 
-    # state hash in development mode
-    def __init__(self, n_states: int, n_actions: int, state_hash=None):
+    def __init__(self, n_states: int, n_actions: int):
         super().__init__(n_actions)
         self._models = []
         self._models.append(Table(n_states, n_actions))
-        self._state_hash = state_hash
 
     def get_state_hash(self, state) -> Any:
-        return self._state_hash(state)
+        return hash(state.data.tobytes())
 
     def reset_actions_visit(self, model_index: int = 0):
         for state in self._models[model_index].states_table:
