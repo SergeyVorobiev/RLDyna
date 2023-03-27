@@ -6,7 +6,7 @@ from rl.dyna.Dyna import Dyna
 class EnvRenderer:
 
     @staticmethod
-    def render(env: Env, agent: Dyna, iterations: int):
+    def render(env: Env, agent: Dyna, iterations: int, episode_done_listener=None, stop_listener=None):
 
         # get first state of environment
         state = env.reset()
@@ -33,3 +33,7 @@ class EnvRenderer:
                 state = env.reset()
                 agent.improve_policy()
                 agent.clear_memory()
+                if episode_done_listener is not None:
+                    episode_done_listener()
+            if stop_listener():
+                break

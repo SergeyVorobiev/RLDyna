@@ -7,7 +7,7 @@ from rl.planning.RPlanning import RPlanning
 
 class Dyna(object):
 
-    def __init__(self, models: [RModel], algorithm: RAlgorithm, state_prepare, planning: RPlanning=None,
+    def __init__(self, models: [RModel], algorithm: RAlgorithm, state_prepare, planning: RPlanning = None,
                  allow_clear_memory=True):
         self._models: [RModel] = models
         self._algorithm: RAlgorithm = algorithm
@@ -18,6 +18,9 @@ class Dyna(object):
     def clear_memory(self):
         if self._planning is not None and self._allow_clear_memory:
             self._planning.clear_memory()
+
+    def get_models(self):
+        return self._models
 
     def act(self, state):
         state = self.prepare_raw_state(state)

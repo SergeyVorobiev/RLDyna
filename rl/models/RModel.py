@@ -42,3 +42,8 @@ class RModel(object):
     @abstractmethod
     def get_state_hash(self, state) -> Any:
         ...
+
+    @abstractmethod
+    def save(self, path=None):
+        ...
+

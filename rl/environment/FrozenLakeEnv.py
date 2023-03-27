@@ -48,6 +48,9 @@ class FrozenLakeEnv(BasicGridEnv):
     def game_done(self):
         pass
 
+    def get_max_score(self):
+        return self._max_score
+
     def after_render(self):
         self.__draw_header()
 

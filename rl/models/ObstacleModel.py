@@ -1,5 +1,3 @@
-from collections import deque
-
 import numpy as np
 
 from typing import Any
@@ -10,6 +8,9 @@ from rl.models.nnbuilders.NNGridBuilder import NNGridBuilder
 
 
 class ObstacleModel(RModel):
+
+    def save(self, path=None):
+        pass
 
     def __init__(self, input_shape, n_actions, batch_size, epochs, steps_to_train=200):
         super().__init__(n_actions)
@@ -40,7 +41,7 @@ class ObstacleModel(RModel):
     def _add_to_batch(self, state: Any, action: int, q: float):
         hash_value = self.get_state_hash(state)
         qs1 = self.get_q_values(state)
-        self._state_hash_bank.update(hash_value, state[1], q, action, qs1)[0]
+        _ = self._state_hash_bank.update(hash_value, state[1], q, action, qs1)[0]
 
     def _train_batch(self):
         self._steps = 0

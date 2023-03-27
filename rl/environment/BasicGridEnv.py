@@ -69,7 +69,7 @@ class BasicGridEnv(Env):
         self._score = None
         self.__done = False
         self.__last_position = list(self.__start_position)
-        self.win = None
+        self.win: GraphWin = None
         self.__visual_grid = None
         self._max_score = None
         self.__player_prop = {"score": self._score,
@@ -270,6 +270,9 @@ class BasicGridEnv(Env):
     @abstractmethod
     def after_world_created(self):
         ...
+
+    def is_closed(self):
+        return self.win.isClosed()
 
     def update_colors(self):
         for row in self.__visual_grid:

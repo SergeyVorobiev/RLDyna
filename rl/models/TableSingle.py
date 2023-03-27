@@ -18,6 +18,9 @@ class Table(object):
 
 class TableSingle(RTableModel):
 
+    def save(self, path=None):
+        pass
+
     def __init__(self, n_states: int, n_actions: int):
         super().__init__(n_actions)
         self._models = []

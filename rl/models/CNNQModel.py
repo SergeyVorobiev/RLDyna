@@ -1,5 +1,6 @@
 from collections import deque
 
+import keras
 import numpy as np
 
 from typing import Any
@@ -13,18 +14,25 @@ from rl.models.nnbuilders.NNGridBuilder import NNGridBuilder
 
 class CNNQModel(RModel):
 
+    def save(self, path=None):
+        if path is not None:
+            self._support_model.save(path)
+        elif self._model_path is not None:
+            self._support_model.save(self._model_path)
+
     def __init__(self, input_shape, n_actions, batch_size, epochs, hash_unique_states_capacity,
-                 steps_to_train=200):
+                 steps_to_train=200, model_path=None, load_model=False):
         super().__init__(n_actions)
         self._input_shape = input_shape
         self._n_actions = n_actions
         self._steps_to_train = steps_to_train
-        k_init_main = VarianceScaling(distribution="uniform")
-        k_init_support = Constant(0)
-        self._model = NNGridBuilder.build_simple_frozen_lake_cnn(input_shape=input_shape, n_actions=n_actions,
-                                                                 kernel_initializer=k_init_main)
-        self._support_model = NNGridBuilder.build_simple_frozen_lake_cnn(input_shape=input_shape, n_actions=n_actions,
-                                                                         kernel_initializer=k_init_support)
+        self._input_shape = input_shape
+        self._model = None
+        self._support_model = None
+        self._model_path = model_path
+        self._load_model = load_model
+        self._load()
+
         self._unique_states_size = hash_unique_states_capacity
 
         # Updates for unique states
@@ -133,3 +141,23 @@ class CNNQModel(RModel):
     def _get_q_values_from_support(self, state: Any):
         q_values = self._support_model(np.array([state[0]]), training=False)
         return q_values[0].numpy()
+
+    def _load(self):
+        k_init_main = VarianceScaling(distribution="uniform")
+        k_init_support = Constant(0)
+        self._model = NNGridBuilder.build_simple_frozen_lake_cnn(input_shape=self._input_shape,
+                                                                 n_actions=self._n_actions,
+                                                                 kernel_initializer=k_init_main)
+        if self._model_path is not None and self._load_model:
+            try:
+                self._support_model = keras.models.load_model(self._model_path)
+                self._model.set_weights(self._support_model.get_weights())
+            except IOError as e:
+                print("Model is not found: " + self._model_path)
+                self._support_model = NNGridBuilder.build_simple_frozen_lake_cnn(input_shape=self._input_shape,
+                                                                                 n_actions=self._n_actions,
+                                                                                 kernel_initializer=k_init_support)
+        else:
+            self._support_model = NNGridBuilder.build_simple_frozen_lake_cnn(input_shape=self._input_shape,
+                                                                             n_actions=self._n_actions,
+                                                                             kernel_initializer=k_init_support)
