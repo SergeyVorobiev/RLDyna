@@ -27,6 +27,25 @@ class NNGridBuilder:
         pass
 
     @staticmethod
+    def build_frozen_lake_around_supporter():
+        bias_initializer = initializers.Constant(1)
+        kernel_initializer = initializers.GlorotNormal()
+        inputs = Input(shape=(2, 2, 1))
+        x = inputs
+        x = Conv2D(filters=1, kernel_size=1, strides=1, padding='valid')(inputs)
+        x = BatchNormalization()(x)
+        x = Activation("relu")(x)
+        #x = InterceptorLayer(interceptor_input_func)(x)
+        x = Flatten()(x)
+        print(x.shape)
+        x = Dense(16, activation='relu', bias_initializer=bias_initializer,
+                  kernel_initializer=kernel_initializer)(x)
+        x = Dense(4, activation='linear', kernel_initializer=kernel_initializer)(x)
+        model = Model(inputs, x)
+        model.compile(loss='mse', optimizer=Adam())
+        return model
+
+    @staticmethod
     def build_simple_frozen_lake_cnn(input_shape, n_actions, kernel_initializer):
         bias_initializer = initializers.Constant(1)
         inputs = Input(shape=input_shape)
