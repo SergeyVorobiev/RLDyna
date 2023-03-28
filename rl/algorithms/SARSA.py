@@ -1,11 +1,9 @@
 from typing import Any
-
-
-# on policy TD control
 from rl.algorithms.StepControl import StepControl
 from rl.models.RModel import RModel
 
 
+# on policy TD control
 class SARSA(StepControl):
 
     def get_v(self, models: [RModel], state: Any) -> float:

@@ -1,11 +1,9 @@
 from typing import Any
-
-
-# on policy TD control
 from rl.algorithms.StepControl import StepControl
 from rl.models.RModel import RModel
 
 
+# on policy TD control
 class ExpectedSARSA(StepControl):
 
     def update_policy(self):
@@ -35,4 +33,3 @@ class ExpectedSARSA(StepControl):
 
     def pick_action(self, models: [RModel], state: Any) -> int:
         return self._policy.pick(self.get_q_values(models, state))
-

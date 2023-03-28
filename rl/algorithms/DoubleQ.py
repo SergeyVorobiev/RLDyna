@@ -1,13 +1,11 @@
 import random
 
 from typing import Any
-
-
-# off policy TD control
 from rl.algorithms.StepControl import StepControl
 from rl.models.RModel import RModel
 
 
+# off policy TD control
 class DoubleQ(StepControl):
 
     def update_policy(self):
