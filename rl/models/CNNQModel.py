@@ -121,7 +121,11 @@ class CNNQModel(RModel):
         raise Exception("Not implemented")
 
     def get_max_a(self, state: Any, model_index: int = 0):
-        raise Exception("Not implemented")
+        hash_value = self.get_state_hash(state)
+        value = self._state_hash_bank.get(hash_value)
+        if value is None:
+            return np.argmax(self._get_q_values_from_support(state))
+        return np.argmax(value[0])
 
     def get_state_hash(self, state) -> Any:
         return hash(state[0].data.tobytes())

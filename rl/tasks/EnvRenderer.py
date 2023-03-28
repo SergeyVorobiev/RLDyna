@@ -6,7 +6,8 @@ from rl.dyna.Dyna import Dyna
 class EnvRenderer:
 
     @staticmethod
-    def render(env: Env, agent: Dyna, iterations: int, episode_done_listener=None, stop_listener=None):
+    def render(env: Env, agent: Dyna, iterations: int, episode_done_listener=None, stop_render_listener=None,
+               iteration_complete_listener=None):
 
         # get first state of environment
         state = env.reset()
@@ -28,6 +29,9 @@ class EnvRenderer:
             # assign the new state
             state = next_state
 
+            if iteration_complete_listener is not None:
+                iteration_complete_listener()
+
             # if we've achieved the goal, print some information, reset state and repeat.
             if done:
                 state = env.reset()
@@ -35,5 +39,5 @@ class EnvRenderer:
                 agent.clear_memory()
                 if episode_done_listener is not None:
                     episode_done_listener()
-            if stop_listener():
+            if stop_render_listener is not None and stop_render_listener():
                 break

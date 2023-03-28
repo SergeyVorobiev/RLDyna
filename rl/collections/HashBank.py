@@ -27,10 +27,7 @@ class HashBank:
         return self._dict.values()
 
     def get_items(self):
-        items = []
-        for item in self._dict.items():
-            items.append(item)
-        return items
+        return self._dict.items()
 
     def clear(self):
         self._deque.clear()
