@@ -17,6 +17,14 @@
  
  **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
  
+ **temporal difference off policy control tabular Double Q-learning** method + simple CNN.
+ 
+ **temporal difference on policy control tabular n-steps SARSA** method + simple CNN.
+ 
+ **temporal difference on policy control tabular SARSA** method + simple CNN.
+ 
+ **temporal difference on policy control tabular Expected SARSA** method + simple CNN.
+ 
  The entry point (main) *FrozenLakeMain.py*.
  
  The size and structure of the lake can be easely adjusted right from *FrozenLakeMain.py*.
@@ -141,7 +149,7 @@ The application contains *SimplePlanning.py* that can keep a specified amount of
 
 ## Table & NN
 
-![NN_Table](https://user-images.githubusercontent.com/17081096/227339659-cadb5984-8e4d-4e89-bd03-94e843634be3.jpg)
+![NN_Table](https://github.com/SergeyVorobiev/RLDyna/blob/7acd2d1284e1fe7b38dc02e341de054f88f72a1d/NN_Table.jpg)
 
 From the picture above we can see that the table approach is very good for storing and reusing values without distortions that allows us to perform precise computations. NN on the other hand is good for working with states which represent complex data containing patterns to recognize. 
 NN is a function that produces the output depending on the weights. It adjusts the weights depending on the errors between predictions and real outputs. The more various data you use to train weights the better weights will be adjusted. 
