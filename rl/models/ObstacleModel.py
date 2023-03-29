@@ -9,8 +9,8 @@ from rl.models.nnbuilders.NNGridBuilder import NNGridBuilder
 
 class ObstacleModel(RModel):
 
-    def save(self, path=None):
-        pass
+    def save(self, path=None) -> bool:
+        return False
 
     def __init__(self, input_shape, n_actions, batch_size, epochs, steps_to_train=200):
         super().__init__(n_actions)

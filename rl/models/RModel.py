@@ -44,6 +44,6 @@ class RModel(object):
         ...
 
     @abstractmethod
-    def save(self, path=None):
+    def save(self, path=None) -> bool:
         ...
 

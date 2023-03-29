@@ -2,18 +2,20 @@ from typing import Any
 
 from rl.models.RModel import RModel
 from rl.algorithms.RAlgorithm import RAlgorithm
+from rl.models.rewardestimators.RewardEstimator import RewardEstimator
 from rl.planning.RPlanning import RPlanning
 
 
 class Dyna(object):
 
-    def __init__(self, models: [RModel], algorithm: RAlgorithm, state_prepare, planning: RPlanning = None,
-                 allow_clear_memory=True):
+    def __init__(self, models: [RModel], algorithm: RAlgorithm, state_prepare, reward_estimator: RewardEstimator = None,
+                 planning: RPlanning = None, allow_clear_memory=True):
         self._models: [RModel] = models
         self._algorithm: RAlgorithm = algorithm
         self._state_prepare = state_prepare
         self._planning: RPlanning = planning
         self._allow_clear_memory = allow_clear_memory
+        self._reward_estimator: RewardEstimator = reward_estimator
 
     def clear_memory(self):
         if self._planning is not None and self._allow_clear_memory:
@@ -27,9 +29,11 @@ class Dyna(object):
         return self._algorithm.pick_action(self._models, state)
 
     def learn(self, state, action, reward, next_state, done, env_props):
-        state = self.prepare_raw_state(state)
-        next_state = self.prepare_raw_state(next_state)
-        self._algorithm.memorize_step(state, action, reward, next_state, done, env_props)
+        p_state = self.prepare_raw_state(state)
+        p_next_state = self.prepare_raw_state(next_state)
+        if self._reward_estimator is not None:
+            reward = self._reward_estimator.estimate(state, action, reward, next_state, done, env_props)
+        self._algorithm.memorize_step(p_state, action, reward, p_next_state, done, env_props)
         error, batch = self._algorithm.train(self._models)
         if self._planning is not None and batch is not None:
             self._planning.memorize((error, batch))

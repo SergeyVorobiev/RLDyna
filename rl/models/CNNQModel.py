@@ -14,11 +14,14 @@ from rl.models.nnbuilders.NNGridBuilder import NNGridBuilder
 
 class CNNQModel(RModel):
 
-    def save(self, path=None):
+    def save(self, path=None) -> bool:
         if path is not None:
             self._support_model.save(path)
+            return True
         elif self._model_path is not None:
             self._support_model.save(self._model_path)
+            return True
+        return False
 
     def __init__(self, input_shape, n_actions, batch_size, epochs, hash_unique_states_capacity,
                  steps_to_train=200, model_path=None, load_model=False):
@@ -156,6 +159,7 @@ class CNNQModel(RModel):
             try:
                 self._support_model = keras.models.load_model(self._model_path)
                 self._model.set_weights(self._support_model.get_weights())
+                print("Model is loaded: " + self._model_path)
             except IOError as e:
                 print("Model is not found: " + self._model_path)
                 self._support_model = NNGridBuilder.build_simple_frozen_lake_cnn(input_shape=self._input_shape,

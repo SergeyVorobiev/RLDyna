@@ -356,9 +356,11 @@ class BasicGridEnv(Env):
     def after_render(self):
         ...
 
-    def draw_values_setup(self, q_supplier=None, u_supplier=None, draw_map=False, draw_path=False):
+    def draw_values_setup(self, q_supplier=None, u_supplier=None):
         self._q_supplier = q_supplier
         self._u_supplier = u_supplier
+
+    def draw_map(self, draw_map=False, draw_path=False):
         self._draw_map = draw_map
         self._draw_path = draw_path
 

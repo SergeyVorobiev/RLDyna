@@ -1,6 +1,6 @@
 from graphics import Text, Point
 
-from rl.environment.BasicGridEnv import BasicGridEnv, move_v, start_v, stay_v, StateType
+from rl.environments.fl.BasicGridEnv import BasicGridEnv, move_v, start_v, stay_v, StateType
 
 
 class FrozenLakeEnv(BasicGridEnv):

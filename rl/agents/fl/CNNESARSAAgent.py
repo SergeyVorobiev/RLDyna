@@ -1,7 +1,7 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
 from rl.algorithms.ExpectedSARSA import ExpectedSARSA
 from rl.dyna.Dyna import Dyna
-from rl.environment.BasicGridEnv import BasicGridEnv, StateType
+from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.CNNQModel import CNNQModel
 from rl.planning.HashPlanning import HashPlanning
 from rl.policy.EGreedyRPolicy import EGreedyRPolicy

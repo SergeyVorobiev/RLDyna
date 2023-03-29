@@ -9,7 +9,7 @@ class EnvRenderer:
     def render(env: Env, agent: Dyna, iterations: int, episode_done_listener=None, stop_render_listener=None,
                iteration_complete_listener=None):
 
-        # get first state of environment
+        # get first state of environment.
         state = env.reset()
 
         for i in range(iterations):
@@ -26,11 +26,10 @@ class EnvRenderer:
             # next state it ended up.
             agent.learn(state, action, reward, next_state, done, player_prop)
 
-            # assign the new state
             state = next_state
 
             if iteration_complete_listener is not None:
-                iteration_complete_listener()
+                iteration_complete_listener(player_prop)
 
             # if we've achieved the goal, print some information, reset state and repeat.
             if done:
@@ -38,6 +37,6 @@ class EnvRenderer:
                 agent.improve_policy()
                 agent.clear_memory()
                 if episode_done_listener is not None:
-                    episode_done_listener()
+                    episode_done_listener(player_prop)
             if stop_render_listener is not None and stop_render_listener():
                 break

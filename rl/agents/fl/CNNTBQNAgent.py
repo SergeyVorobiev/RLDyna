@@ -1,7 +1,7 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
 from rl.algorithms.TreeBackup import TreeBackup
 from rl.dyna.Dyna import Dyna
-from rl.environment.BasicGridEnv import BasicGridEnv, StateType
+from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.CNNQModel import CNNQModel
 from rl.planning.HashPlanning import HashPlanning
 from rl.policy.EGreedyRPolicy import EGreedyRPolicy

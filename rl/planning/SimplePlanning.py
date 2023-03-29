@@ -8,21 +8,15 @@ from rl.planning.RPlanning import RPlanning
 
 class SimplePlanning(RPlanning):
 
-    def __init__(self, plan_batch_size: int, plan_step_size: int, memory_size: int):
+    def __init__(self, plan_batch_size: int, plan_step_size: int, memory_size: int, clear_memory_after_planning=False):
         super().__init__(memory_size)
         self._plan_batch_size: int = plan_batch_size
-        self.__error = 0
-        self.__error2 = 0
-        self._epsilon: float = 0
         self._plan_steps = 0
         self._plan_steps_size = plan_step_size
+        self._clear_memory_after_planning = clear_memory_after_planning
 
     def memorize(self, batch: Any):
-        if batch[0] > self.__error:
-            self._memory.append(batch)
-        else:
-            if random.uniform(0, 1) < self._epsilon:
-                self._memory.append(batch)
+        self._memory.append(batch)
 
     def plan(self, models: [RModel], algorithm: RAlgorithm):
         self._plan_steps += 1
@@ -32,13 +26,5 @@ class SimplePlanning(RPlanning):
                 batch = random.sample(self._memory, self._plan_batch_size)
                 for error, sample in batch:
                     _ = algorithm.plan(models, sample)
-                    # print(error)
-                    # self._memory.append((error, sample))
-                    # while error > self.__error2:
-                    #    error, _ = algorithm.train_batch(models, policy, sample)
-            # last = self.get_last_memorized()
-            # if last is not None and last.__len__() > 0:
-                # error = self.get_last_memorized()[0][0]
-                # if error < self.__error:
-                    # print("Remove")
-                    # self.remove_last()
+            if self._clear_memory_after_planning:
+                self.clear_memory()

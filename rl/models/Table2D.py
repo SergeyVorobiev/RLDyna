@@ -16,10 +16,10 @@ class Table(object):
             self.states_table.append(state)
 
 
-class TableSingle(RTableModel):
+class Table2D(RTableModel):
 
-    def save(self, path=None):
-        pass
+    def save(self, path=None) -> bool:
+        return False
 
     def __init__(self, n_states: int, n_actions: int):
         super().__init__(n_actions)

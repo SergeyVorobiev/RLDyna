@@ -6,6 +6,10 @@ __pycache__/
 # Ignore idea
 .idea/
 
+# Ignore resources
+rl/resources/models/nn/*
+rl/resources/models/table/*
+
 # C extensions
 *.so
 
