@@ -1,5 +1,5 @@
 # RLDyna
- Reinforcement learning from scratch (Frozen Lake).
+ Reinforcement learning from scratch.
  
  ![FrozenLake](https://github.com/SergeyVorobiev/RLDyna/blob/f02844dd02f5c142598e3696ab7dbdd734b6cb36/FL2.jpg)
 
@@ -9,25 +9,25 @@
  
  To use NN you need to install tensorflow + keras, the project uses 2.11v for both, depending on your versions, you probably will need to reimport some packages        related to the versions of this libraries and also install CUDA.
  
- The robot walks on the lake trying to find the exit.
+ **Frozen Lake:**
  
- The robot uses:
+ * **temporal difference off policy control tabular Q-learning** method + simple CNN.
  
- **temporal difference off policy control tabular Q-learning** method + simple CNN.
+ * **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
  
- **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
+ * **temporal difference off policy control tabular Double Q-learning** method + simple CNN.
  
- **temporal difference off policy control tabular Double Q-learning** method + simple CNN.
+ * **temporal difference on policy control tabular n-steps SARSA** method + simple CNN.
  
- **temporal difference on policy control tabular n-steps SARSA** method + simple CNN.
+ * **temporal difference on policy control tabular SARSA** method + simple CNN.
  
- **temporal difference on policy control tabular SARSA** method + simple CNN.
+ * **temporal difference on policy control tabular Expected SARSA** method + simple CNN.
  
- **temporal difference on policy control tabular Expected SARSA** method + simple CNN.
+ **Cart Pole:**
  
- The entry point (main) *FrozenLakeMain.py*.
+ * **temporal difference off policy control tabular Q-learning** method.
  
- The size and structure of the lake can be easely adjusted right from *FrozenLakeMain.py*.
+ The entry point (main) *GymMain.py*.
  
  Different algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
  
@@ -37,10 +37,11 @@
  
  Policy can be added by extending from *RPolicy.py*.
  
- *StateType* enum contains {blind, around, all_map} where:
+ *StateType* enum (only for Frozen Lake) contains {blind, around, all_map, all_map_and_around} where:
  - blind - the robot sees only cell it stands on (good for tabular methods).
  - around - the robot sees cells around (good for different NN).
  - all_map - the robot sees all map (good for CNN).
+ - all_map_and_around - the robot sees all map and around (good for CNN).
  
  # How it works?
  
