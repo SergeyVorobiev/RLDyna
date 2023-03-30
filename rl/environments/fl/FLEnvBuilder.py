@@ -83,6 +83,7 @@ class FLEnvBuilder(EnvBuilder):
 
     def __init__(self):
         self._agent_name = selected_agent
+        self._is_env_closed = None
 
     def episode_done(self, player_prop):
         if need_to_save_model and self._agent is not None:
@@ -93,7 +94,7 @@ class FLEnvBuilder(EnvBuilder):
         pass
 
     def stop_render(self):
-        pass
+        return self._is_env_closed()
 
     def get_iterations(self):
         return iterations
@@ -102,6 +103,7 @@ class FLEnvBuilder(EnvBuilder):
         grid_map = maps[map_name]
         env = FrozenLakeEnv(rewards=rewards, grid_map=grid_map[0], cell_width=grid_map[1], cell_height=grid_map[2],
                             color_map=color_map, begin_from_start_if_get_in_hole=False)
+        self._is_env_closed = env.is_closed
 
         # Skip some part of screen updating to speed up the process.
         env.set_skip_frame(skip_frames)
