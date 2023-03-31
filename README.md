@@ -27,6 +27,12 @@
  
  * **temporal difference off policy control tabular Q-learning** method.
  
+ * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
+ 
+ **Mountain Car:**
+ 
+ * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
+  
  The entry point (main) *GymMain.py*.
  
  Different algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
