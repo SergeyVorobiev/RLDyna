@@ -3,12 +3,14 @@ from typing import Any
 from rl.models.RModel import RModel
 from rl.algorithms.RAlgorithm import RAlgorithm
 from rl.models.rewardestimators.RewardEstimator import RewardEstimator
+from rl.models.stateprepares.RStatePrepare import RStatePrepare
 from rl.planning.RPlanning import RPlanning
 
 
 class Dyna(object):
 
-    def __init__(self, models: [RModel], algorithm: RAlgorithm, state_prepare, reward_estimator: RewardEstimator = None,
+    def __init__(self, models: [RModel], algorithm: RAlgorithm, state_prepare: RStatePrepare = None,
+                 reward_estimator: RewardEstimator = None,
                  planning: RPlanning = None, allow_clear_memory=True):
         self._models: [RModel] = models
         self._algorithm: RAlgorithm = algorithm
@@ -41,6 +43,8 @@ class Dyna(object):
         self._algorithm.update_policy()
 
     def prepare_raw_state(self, state) -> Any:
+        if self._state_prepare is None:
+            return state
         return self._state_prepare.prepare_raw_state(state)
 
     def get_v(self, state):

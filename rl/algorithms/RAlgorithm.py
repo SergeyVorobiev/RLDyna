@@ -37,7 +37,7 @@ class RAlgorithm(RLearnMemory):
         ...
 
     @abstractmethod
-    def pick_action(self, models: [RModel], state: Any) -> int:
+    def pick_action(self, models: [RModel], state: Any) -> Any:
         ...
 
     @abstractmethod

@@ -117,3 +117,6 @@ class FLEnvBuilder(EnvBuilder):
         env.draw_values_setup(q_supplier=self._agent.get_q_values)
 
         return env, self._agent
+
+    def lookup_listener(self, state, action, reward, next_state, done, player_prop):
+        pass

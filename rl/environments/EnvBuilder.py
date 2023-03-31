@@ -28,4 +28,7 @@ class EnvBuilder(object):
     def stop_render(self):
         ...
 
+    @abstractmethod
+    def lookup_listener(self, state, action, reward, next_state, done, player_prop):
+        ...
 

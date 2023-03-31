@@ -7,7 +7,7 @@ class EnvRenderer:
 
     @staticmethod
     def render(env: Env, agent: Dyna, iterations: int, episode_done_listener=None, stop_render_listener=None,
-               iteration_complete_listener=None):
+               iteration_complete_listener=None, lookup_listener=None):
 
         # get first state of environment.
         state = env.reset()
@@ -21,6 +21,9 @@ class EnvRenderer:
 
             # get next state and reward from the environment according to the action.
             next_state, reward, done, player_prop = env.step(action)
+
+            if lookup_listener is not None:
+                lookup_listener(state, action, reward, next_state, done, player_prop)
 
             # make the agent learn depending on the state it was, action it applied, reward it got,
             # next state it ended up.

@@ -39,7 +39,7 @@ class CartPoleEnvBuilder(EnvBuilder):
         self._agent_name = selected_agent
         self._ep_iter = 0
         self._episodes = 0
-        self._average_count = 100
+        self._average_count = 1000
         self._scores = deque(maxlen=self._average_count)
         self._score_averages = deque(maxlen=self._average_count)
         self._gaps = deque(maxlen=self._average_count)
@@ -92,3 +92,7 @@ class CartPoleEnvBuilder(EnvBuilder):
         env = gym.make("CartPole-v1")
         self._agent = agents[self._agent_name].build_agent(env)
         return env, self._agent
+
+    def lookup_listener(self, state, action, reward, next_state, done, player_prop):
+        pass
+
