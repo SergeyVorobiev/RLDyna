@@ -28,4 +28,7 @@ class StepControl(RAlgorithm):
     def pick_action(self, models: [RModel], state: Any) -> int:
         return self._policy.pick(self.get_q_values(models, state))
 
+    def get_a_distribution(self, models: [RModel], state: Any):
+        pass
+
 

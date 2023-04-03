@@ -33,18 +33,8 @@ class EmptyEnvBuilder(EnvBuilder):
         print(f"Episode {self._episodes}: Iterations: {self._ep_iter}")
         self._ep_iter = 0
 
-    def iteration_complete(self, player_prop: Any):
+    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
         self._ep_iter += 1
-
-    def stop_render(self):
-        pass
-
-    def build_env_and_agent(self) -> (Env, Dyna):
-        self._env: Env = gym.make(self._game_name)
-        self._agent = EmptyAgent().build_agent(self._env)
-        return self._env, self._agent
-
-    def lookup_listener(self, state, action, reward, next_state, done, player_prop):
         if self._print_state_info:
             print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
             print(f"Action space: {self._env.action_space}\n")
@@ -60,4 +50,10 @@ class EmptyEnvBuilder(EnvBuilder):
             print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n")
         time.sleep(self._delay_frame)
 
+    def stop_render(self):
+        pass
 
+    def build_env_and_agent(self) -> (Env, Dyna):
+        self._env: Env = gym.make(self._game_name)
+        self._agent = EmptyAgent().build_agent(self._env)
+        return self._env, self._agent

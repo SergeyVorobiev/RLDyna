@@ -40,10 +40,17 @@ class RModel(object):
         ...
 
     @abstractmethod
+    def get_a_distribution(self, state: Any, model_index: int = 0):
+        ...
+
+    @abstractmethod
     def get_state_hash(self, state) -> Any:
         ...
 
     @abstractmethod
-    def save(self, path=None) -> bool:
+    def save(self, path=None) -> (bool, str):
         ...
 
+    @abstractmethod
+    def update(self, data: Any):
+        ...

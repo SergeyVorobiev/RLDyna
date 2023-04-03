@@ -1,4 +1,4 @@
-from rl.models.stateprepares.RStatePrepare import RStatePrepare
+from rl.stateprepares.RStatePrepare import RStatePrepare
 
 
 # Allows convert or modify every row state of environment before performing the calculations.

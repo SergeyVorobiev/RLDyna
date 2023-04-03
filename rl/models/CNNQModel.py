@@ -5,7 +5,7 @@ import numpy as np
 
 from typing import Any
 
-from keras.initializers.initializers_v2 import VarianceScaling, Constant
+from keras.initializers.initializers import VarianceScaling, Constant
 
 from rl.collections.StateHashBank import StateHashBank
 from rl.models.RModel import RModel
@@ -14,24 +14,18 @@ from rl.models.nnbuilders.NNGridBuilder import NNGridBuilder
 
 class CNNQModel(RModel):
 
-    def save(self, path=None) -> bool:
-        if path is not None:
-            self._support_model.save(path)
-            return True
-        elif self._model_path is not None:
-            self._support_model.save(self._model_path)
-            return True
-        return False
-
     def __init__(self, input_shape, n_actions, batch_size, epochs, hash_unique_states_capacity,
-                 steps_to_train=200, model_path=None, load_model=False):
+                 steps_to_train=200, model_path=None, load_model=False, model_index=0):
         super().__init__(n_actions)
+        self._model_index = model_index
         self._input_shape = input_shape
         self._n_actions = n_actions
         self._steps_to_train = steps_to_train
         self._input_shape = input_shape
         self._model = None
         self._support_model = None
+        if model_path is not None:
+            model_path = model_path + "_" + str(model_index)
         self._model_path = model_path
         self._load_model = load_model
         self._load()
@@ -60,6 +54,9 @@ class CNNQModel(RModel):
             return self._get_q_values_from_support(state).max() * self._koef1 + self._get_q_values_from_main(
                 state).max() * self._koef2
         return max(value[0]) * self._koef1 + self._get_q_values_from_main(state).max() * self._koef2
+
+    def get_a_distribution(self, state: Any, model_index: int = 0):
+        raise NotImplementedError
 
     def get_q(self, state, action: int, model_index: int = 0):
         hash_value = self.get_state_hash(state)
@@ -148,6 +145,19 @@ class CNNQModel(RModel):
     def _get_q_values_from_support(self, state: Any):
         q_values = self._support_model(np.array([state[0]]), training=False)
         return q_values[0].numpy()
+
+    def update(self, data: Any):
+        raise NotImplementedError
+
+    def save(self, path=None) -> (bool, str):
+        if path is not None:
+            path = path + "_" + str(self._model_index)
+            self._support_model.save(path)
+            return True, path
+        elif self._model_path is not None:
+            self._support_model.save(self._model_path)
+            return True, self._model_path
+        return False, None
 
     def _load(self):
         k_init_main = VarianceScaling(distribution="uniform")

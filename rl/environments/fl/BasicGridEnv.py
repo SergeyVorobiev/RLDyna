@@ -1,3 +1,4 @@
+import random
 from abc import abstractmethod
 from enum import Enum
 from time import sleep
@@ -117,6 +118,27 @@ class BasicGridEnv(Env):
                 raise Exception("Wrong grid width")
         self.__width = last_width
 
+    # Not done
+    def _generate_start(self):
+        y = 0
+        for row in self.grid_map:
+            x = 0
+            for value in row:
+                if value == start:
+                    self.grid_map[y][x] = 0
+                x += 1
+            y += 1
+
+        search = True
+        while search:
+            x = random.randrange(self.get_x())
+            y = random.randrange(self.get_y())
+            if self.grid_map[y][x] == 0:
+                self.grid_map[y][x] = 4
+                search = False
+                self.__start_position[0] = x
+                self.__start_position[1] = y
+
     def __get_start_position(self):
         y = 0
         for row in self.grid_map:
@@ -199,7 +221,7 @@ class BasicGridEnv(Env):
             elif position == start_v:
                 self.__position[0] = self.__start_position[0]
                 self.__position[1] = self.__start_position[1]
-            if place == finish:
+            if place == finish or position == -1:
                 #bonus = random.randrange(0, 4)
                 #reward += bonus
                 self.__done = True
@@ -332,6 +354,7 @@ class BasicGridEnv(Env):
         if draw_map and self._draw_map_limiter > self._draw_map_frame_skip:
             self._draw_map_limiter = 0
             update_policy_colors_grid(grid=self.__visual_grid, cell_value_func=self.__get_cell_value)
+            self.__visual_grid[self.__position[0]][self.__position[1]].set_color_and_update(255, 0, 0)
         if q_supplier is not None or u_supplier is not None:
             for row in self.__visual_grid:
                 for cell in row:

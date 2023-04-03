@@ -2,7 +2,7 @@ from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
 from rl.algorithms.SARSA import SARSA
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
-from rl.models.Table2D import Table2D
+from rl.models.Table1D import Table1D
 from rl.planning.SimplePlanning import SimplePlanning
 from rl.policy.EGreedyRPolicy import EGreedyRPolicy
 from rl.tasks.fl.FrozenLakeStatePrepare import FrozenLakeStatePrepare
@@ -33,7 +33,7 @@ class TabularSARSAAgent(RDynaAgentBuilder):
         algorithm = SARSA(e_greedy, alpha=alpha, discount=discount)
 
         # Model keeps the previously learned information and get the data back when needed.
-        models = [Table2D(n_states=n_states, n_actions=env.action_space.n)]
+        models = [Table1D(n_states=n_states, n_actions=env.action_space.n)]
 
         return Dyna(models=models, algorithm=algorithm, planning=planning,
                     state_prepare=FrozenLakeStatePrepare(env.get_y()))

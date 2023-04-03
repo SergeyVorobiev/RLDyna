@@ -9,6 +9,7 @@ __pycache__/
 # Ignore resources
 rl/resources/models/nn/*
 rl/resources/models/table/*
+rl/temp/*
 
 # C extensions
 *.so

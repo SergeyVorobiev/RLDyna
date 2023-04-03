@@ -11,7 +11,7 @@ from rl.policy.RPolicy import RPolicy
 # Learning process from the memory is called planning.
 class RAlgorithm(RLearnMemory):
 
-    def __init__(self, policy: RPolicy, alpha: float, discount: float, memory_capacity: int = 1):
+    def __init__(self, policy: RPolicy = None, alpha: float = 1, discount: float = 1, memory_capacity: int = 1):
         super().__init__(memory_capacity)
         self._alpha: float = alpha
         self._discount: float = discount
@@ -30,6 +30,10 @@ class RAlgorithm(RLearnMemory):
 
     @abstractmethod
     def get_q_values(self, models: [RModel], state: Any):
+        ...
+
+    @abstractmethod
+    def get_a_distribution(self, models: [RModel], state: Any):
         ...
 
     @abstractmethod

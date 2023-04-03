@@ -2,8 +2,8 @@ from typing import Any
 
 from rl.models.RModel import RModel
 from rl.algorithms.RAlgorithm import RAlgorithm
-from rl.models.rewardestimators.RewardEstimator import RewardEstimator
-from rl.models.stateprepares.RStatePrepare import RStatePrepare
+from rl.rewardestimators.RewardEstimator import RewardEstimator
+from rl.stateprepares.RStatePrepare import RStatePrepare
 from rl.planning.RPlanning import RPlanning
 
 
@@ -52,8 +52,14 @@ class Dyna(object):
         return self._algorithm.get_v(self._models, state)
 
     def improve_policy(self):
-        self._algorithm.get_policy().improve()
+        policy = self._algorithm.get_policy()
+        if policy is not None:
+            policy.improve()
 
     def get_q_values(self, state):
         state = self.prepare_raw_state(state)
         return self._algorithm.get_q_values(self._models, state)
+
+    def get_a_distribution(self, state):
+        state = self.prepare_raw_state(state)
+        return self._algorithm.get_a_distribution(self._models, state)

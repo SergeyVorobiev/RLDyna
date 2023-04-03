@@ -24,7 +24,7 @@ from rl.tasks.fl.FLGrids import grid_map1, grid_map2, grid_map3, grid_map4
 # ================================================ CONTROL PANEL =======================================================
 
 # move, fall in hole, hit a wall, finish
-rewards = [-1, -5, -3, 30]
+rewards = [-1.0, -5.0, -3.0, 30.0]
 
 color_map = [[0, 255, 255], [0, 0, 255], [0, 0, 0], [255, 255, 0], [0, 255, 0], [255, 0, 0]]
 
@@ -46,51 +46,59 @@ colorize_q_map_frames_skip = 29  # to speed up computations
 
 slow_render = 0  # to see what is going on more carefully
 
+begin_from_start_if_get_in_hole = False
+
 load_model = True
-need_to_save_model = True
+save_model = True
 
 env_name = "FrozenLake"
 
 map_name = "grid_map1"  # grid_map1, grid_map2, grid_map3, grid_map4
 
-path = ProjectPath.join_to_nn_models_path(os.path.join(env_name, map_name))
-
-agents = {
-    "TabQ": TabularQAgent(),
-    "CNNQ": CNNQAgent(os.path.join(path, "CNNQ"), load_model=load_model),
-    "TabDQ": TabularDoubleQAgent(),
-    "CNNDQ": CNNDQAgent(os.path.join(path, "CNNDQ"), load_model=load_model),
-    "TabSARSA": TabularSARSAAgent(),
-    "CNNSARSA": CNNSARSAAgent(os.path.join(path, "CNNSARSA"), load_model=load_model),
-    "TabESARSA": TabularESARSAAgent(),
-    "CNNESARSA": CNNESARSAAgent(os.path.join(path, "CNNESARSA"), load_model=load_model),
-    "TabNSARSA": TabularNSARSAAgent(),
-    "CNNNSARSA": CNNNSARSAAgent(os.path.join(path, "CNNNSARSA"), load_model=load_model),
-    "TabTBQN": TabularTreeBackupAgent(),
-    "CNNTBQN": CNNTBQNAgent(os.path.join(path, "CNNTBQN"), load_model=load_model)
-}
-
 # Select agent
 selected_agent = "TabTBQN"  # TabQ, TabDQ, CNNQ, CNNDQ, TabSARSA, CNNSARSA, TabESARSA, CNNESARSA, TabNSARSA, CNNNSARSA
 # TabTBQN, CNNTBQN
+
+model_name_suffix = "1"
+
+model_name = selected_agent + "_" + model_name_suffix
+
+model_name = os.path.join(map_name, model_name)
+
+path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
+path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
+
+agents = {
+    "TabQ": TabularQAgent(),
+    "CNNQ": CNNQAgent(path_nn, load_model=load_model),
+    "TabDQ": TabularDoubleQAgent(),
+    "CNNDQ": CNNDQAgent(path_nn, load_model=load_model),
+    "TabSARSA": TabularSARSAAgent(),
+    "CNNSARSA": CNNSARSAAgent(path_nn, load_model=load_model),
+    "TabESARSA": TabularESARSAAgent(),
+    "CNNESARSA": CNNESARSAAgent(path_nn, load_model=load_model),
+    "TabNSARSA": TabularNSARSAAgent(),
+    "CNNNSARSA": CNNNSARSAAgent(path_nn, load_model=load_model),
+    "TabTBQN": TabularTreeBackupAgent(),
+    "CNNTBQN": CNNTBQNAgent(path_nn, load_model=load_model)
+}
 
 iterations = 1000000
 
 # ======================================================================================================================
 
 
-class FLEnvBuilder(EnvBuilder):
+class FrozenLakeEnvBuilder(EnvBuilder):
 
     def __init__(self):
         self._agent_name = selected_agent
         self._is_env_closed = None
 
     def episode_done(self, player_prop):
-        if need_to_save_model and self._agent is not None:
-            if self._agent.get_models()[0].save():
-                print("Model is saved")
+        if save_model:
+            EnvBuilder.save_model(self._agent)
 
-    def iteration_complete(self, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
         pass
 
     def stop_render(self):
@@ -102,7 +110,7 @@ class FLEnvBuilder(EnvBuilder):
     def build_env_and_agent(self) -> (Env, Dyna):
         grid_map = maps[map_name]
         env = FrozenLakeEnv(rewards=rewards, grid_map=grid_map[0], cell_width=grid_map[1], cell_height=grid_map[2],
-                            color_map=color_map, begin_from_start_if_get_in_hole=False)
+                            color_map=color_map, begin_from_start_if_get_in_hole=begin_from_start_if_get_in_hole)
         self._is_env_closed = env.is_closed
 
         # Skip some part of screen updating to speed up the process.
@@ -117,6 +125,3 @@ class FLEnvBuilder(EnvBuilder):
         env.draw_values_setup(q_supplier=self._agent.get_q_values)
 
         return env, self._agent
-
-    def lookup_listener(self, state, action, reward, next_state, done, player_prop):
-        pass

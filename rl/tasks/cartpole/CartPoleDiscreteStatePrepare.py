@@ -1,4 +1,4 @@
-from rl.models.stateprepares.RStatePrepare import RStatePrepare
+from rl.stateprepares.RStatePrepare import RStatePrepare
 
 
 class CartPoleDiscreteStatePrepare(RStatePrepare):

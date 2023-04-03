@@ -2,7 +2,7 @@ from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
 from rl.algorithms.TreeBackup import TreeBackup
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
-from rl.models.Table2D import Table2D
+from rl.models.Table1D import Table1D
 from rl.planning.SimplePlanning import SimplePlanning
 from rl.policy.EGreedyRPolicy import EGreedyRPolicy
 from rl.tasks.fl.FrozenLakeStatePrepare import FrozenLakeStatePrepare
@@ -23,7 +23,7 @@ class TabularTreeBackupAgent(RDynaAgentBuilder):
         planning = SimplePlanning(plan_batch_size=n_states, plan_step_size=n_states,
                                   memory_size=n_states * env.action_space.n * steps)
         algorithm = TreeBackup(e_greedy, alpha=alpha, discount=discount, n_step=steps)
-        models = [Table2D(n_states=n_states, n_actions=env.action_space.n)]
+        models = [Table1D(n_states=n_states, n_actions=env.action_space.n)]
 
         return Dyna(models=models, algorithm=algorithm, planning=planning,
                     state_prepare=FrozenLakeStatePrepare(env.get_y()))

@@ -21,14 +21,18 @@ class EnvBuilder(object):
         ...
 
     @abstractmethod
-    def iteration_complete(self, player_prop: Any):
+    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
         ...
 
     @abstractmethod
     def stop_render(self):
         ...
 
-    @abstractmethod
-    def lookup_listener(self, state, action, reward, next_state, done, player_prop):
-        ...
-
+    @staticmethod
+    def save_model(agent):
+        if agent is not None:
+            models = agent.get_models()
+            for model in models:
+                result, saved_path = model.save()
+                if result:
+                    print("Model is saved: " + saved_path)

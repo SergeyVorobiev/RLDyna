@@ -16,10 +16,7 @@ class Table(object):
             self.states_table.append(state)
 
 
-class Table2D(RTableModel):
-
-    def save(self, path=None) -> bool:
-        return False
+class Table1D(RTableModel):
 
     def __init__(self, n_states: int, n_actions: int):
         super().__init__(n_actions)
@@ -89,6 +86,15 @@ class Table2D(RTableModel):
 
     def update_q_values(self, state: Any, values, episode_done: bool, model_index: int = 0):
         raise Exception("Table model did not implement this method")
+
+    def update(self, data: Any):
+        raise NotImplementedError
+
+    def save(self, path=None) -> (bool, str):
+        return False, None
+
+    def get_a_distribution(self, state: Any, model_index: int = 0):
+        pass
 
 
 

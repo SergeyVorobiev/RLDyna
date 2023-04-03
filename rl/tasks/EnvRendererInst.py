@@ -12,5 +12,4 @@ class EnvRendererInst:
         EnvRenderer.render(self._env, self._agent, self._env_builder.get_iterations(),
                            episode_done_listener=self._env_builder.episode_done,
                            iteration_complete_listener=self._env_builder.iteration_complete,
-                           stop_render_listener=self._env_builder.stop_render,
-                           lookup_listener=self._env_builder.lookup_listener)
+                           stop_render_listener=self._env_builder.stop_render)

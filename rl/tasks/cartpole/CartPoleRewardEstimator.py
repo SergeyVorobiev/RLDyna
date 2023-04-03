@@ -1,4 +1,4 @@
-from rl.models.rewardestimators.RewardEstimator import RewardEstimator
+from rl.rewardestimators.RewardEstimator import RewardEstimator
 
 
 class CartPoleRewardEstimator(RewardEstimator):
