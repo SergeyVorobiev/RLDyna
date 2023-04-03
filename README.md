@@ -29,10 +29,22 @@
  
  * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
  
+ * **Monter Carlo Policy Gradient** method.
+ 
  **Mountain Car:**
  
  * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
-  
+ 
+ **Shelter:**
+ 
+ * **temporal difference off policy control tabular Q-learning** method.
+ 
+ **Cliff Walking:** *(See the difference between SARSA & Q)*
+ 
+ * **temporal difference off policy control tabular Q-learning** method.
+ 
+ * **temporal difference on policy control tabular SARSA** method.
+ 
  The entry point (main) *GymMain.py*.
  
  Different algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
@@ -145,6 +157,14 @@ To give the algorithm the ability to explore and choose any possible action for 
 action = RandomFloatBetween(0, 1) <= epsilon ? chooseRandom(actions) : maxQ(actions)
 ```
 
+### SARSA
+
+This is one yet type of Markov chain based on rewards, slightly differs from previous Q, classic one step on policy form looks like this:
+
+**$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma Q(S', a'))$$**
+
+We can see the difference from classic Q is that now we choose the next action according to the policy that could not mandatory be max Q action. See Cliff Walker example, Q behaves more aggressively with maximal optimality whereas SARSA is more careful.
+
 ### Dyna
 The one of the simplest versions of Dyna is shown below:
 
@@ -167,7 +187,26 @@ If we train the model for one specific set of states, then it can upset the outp
 * NN can decide that some particular states are too bad to visit based on current weights, even if it has never seen them before. It leads to very bad convergence, and means that we need to build a complex system which would contain some critics, advisers, estimators etc.
 * NN can produce cycles because for some unvisited states it still produces random values. If we have a state A, and an action with max value that leads to B, then B could potentially contain the action with random max value leading back to A. Thus we will bounce back and force between two actions. Such loops can have more than two states: A->B->C->D->A.
 
-In our example we use a very simple CNN that could be converged to the optimum pretty fast for small maps.
+## Importance sampling
+
+![ImSamp](https://user-images.githubusercontent.com/17081096/229510763-c56641bb-ca9f-4a09-95c9-a52e2f2371fd.jpg)
+
+Our tabular algorithms (Q, SARSA etc.) learn action values not for the optimal policy, but for a near-optimal policy that still explores by using an e-greedy approach. But it is possible to use a more straightforward approach. We can use two policies, one that should become optimal policy **$\pi$**, and one that generates states is called behavior policy - *b*.
+
+From the picture above we can see the specified trajectory that the robot did due to searching. We can calculate the probability of this trajectory, for that, we just need to multiply the probabilities of actions the robot did and the probabilities of transitions: **$$p(S_{2} | S_{1}, a) * \pi(a | S_{1}) * p(S_{3} | S_{2}, a) * \pi(a | S_{2}) * p(S_{4} | S_{3}, a) * \pi(a | S_{3}) $$** In other word we got the formula:
+**$$\prod_{i=1}^n \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i}) $$**
+
+So for example if the probability that robot goes to the north is ¼ and the probability of its transition = 1, then the probability that it goes to the north twice will be 1/4 * 1 * 1/4 * 1 = 1/16 provided that states are not important. This process is called *Importance sampling* where the value tells us how important it is for the robot to follow the specific route. If the robot knows that it needs to go only to the north then the importance to go there will be maximum 1 * 1 * 1 * 1 = 1.
+
+Now if we have some deterministic policy to be learnt and some stochastic policy to explore we can get their importance sampling ratio:
+
+**$$p = \frac{\prod_{i} \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i})}{\prod_{i} b(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i})} = \frac{\prod_{i} \pi(A_{i} | S_{i})}{\prod_{i} b(A_{i} | S_{i})}$$**
+
+We cancel out the transitions because the route is the same for both to get its ratio. For example, the probability of **$\pi$** = ¼ and probability of *b* = ⅓, then the ratio is  ¾. So now imagine that the reward of our route is 10 then ¾ * 10 = 7.5 that indicates the reword that we actually would not get using **$\pi$**, because ¼ * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
+
+For example one step off policy sarsa can look like this:
+**$$Q(S_{t},a) = Q(S_{t},a) + \alpha p(R - Q(S_{t},a) + \gamma Q(S_{t+1}, a))$$**
+
 
 
 
