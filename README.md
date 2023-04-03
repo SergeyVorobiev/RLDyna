@@ -204,8 +204,17 @@ Now if we have some deterministic policy to be learnt and some stochastic policy
 
 We cancel out the transitions because the route is the same for both to get its ratio. For example, the probability of **$\pi$** = ¼ and probability of *b* = ⅓, then the ratio is  ¾. So now imagine that the reward of our route is 10 then ¾ * 10 = 7.5 that indicates the reword that we actually would not get using **$\pi$**, because ¼ * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
 
-For example one step off policy sarsa can look like this:
+One step off policy sarsa can look like this:
 **$$Q(S_{t},a) = Q(S_{t},a) + \alpha p(R - Q(S_{t},a) + \gamma Q(S_{t+1}, a))$$**
+
+## ANN Basics
+
+![ann](https://user-images.githubusercontent.com/17081096/229552010-e1f1d899-e138-472e-a845-d494532ac080.jpg)
+
+In tasks like CartPole and MountainCar we can easily use table q-values approaches as our actions are discrete and states have small dimensions. In fact we rather prefer tables because it's easy, gives precision, speed and the convergence to the optima are guaranteed. But for tasks like BipedalWalker we not only have many dimensional continuous states, which are hard to fit into a discrete table, but also have action space with evenly distributed values.
+We now need to consider some linear / non linear weight functions for both states and actions.
+
+## Monte Carlo Policy Gradient
 
 
 
