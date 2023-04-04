@@ -29,7 +29,7 @@
  
  * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
  
- * **Monter Carlo Policy Gradient** method.
+ * **Monte Carlo Policy Gradient** method.
  
  **Mountain Car:**
  
@@ -159,7 +159,7 @@ action = RandomFloatBetween(0, 1) <= epsilon ? chooseRandom(actions) : maxQ(acti
 
 ### SARSA
 
-This is one yet type of Markov chain based on rewards, slightly differs from previous Q, classic one step on policy form looks like this:
+This is one yet type of Markov chain based on rewards, slightly differs from previous Q. Classic one step on-policy form looks like this:
 
 **$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma Q(S', a'))$$**
 
@@ -189,35 +189,79 @@ If we train the model for one specific set of states, then it can upset the outp
 
 ## Importance sampling
 
-![ImSamp](https://user-images.githubusercontent.com/17081096/229510763-c56641bb-ca9f-4a09-95c9-a52e2f2371fd.jpg)
+![ImSamp](https://user-images.githubusercontent.com/17081096/229685902-dc7791d4-4272-4670-8958-6466dd50612b.jpg)
 
-Our tabular algorithms (Q, SARSA etc.) learn action values not for the optimal policy, but for a near-optimal policy that still explores by using an e-greedy approach. But it is possible to use a more straightforward approach. We can use two policies, one that should become optimal policy **$\pi$**, and one that generates states is called behavior policy - *b*.
+Our tabular algorithms (Q, SARSA etc.) learn action values not for the optimal policy, but for a near-optimal policy that still explores by using an e-greedy approach. But it is possible to use a more straightforward approach. We can use two policies, one that should become optimal policy **$\pi$**, and one that generates states, is called behavior policy - *b*.
 
 From the picture above we can see the specified trajectory that the robot did due to searching. We can calculate the probability of this trajectory, for that, we just need to multiply the probabilities of actions the robot did and the probabilities of transitions: **$$p(S_{2} | S_{1}, a) * \pi(a | S_{1}) * p(S_{3} | S_{2}, a) * \pi(a | S_{2}) * p(S_{4} | S_{3}, a) * \pi(a | S_{3}) $$** In other word we got the formula:
 **$$\prod_{i=1}^n \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i}) $$**
 
-So for example if the probability that robot goes to the north is ¼ and the probability of its transition = 1, then the probability that it goes to the north twice will be 1/4 * 1 * 1/4 * 1 = 1/16 provided that states are not important. This process is called *Importance sampling* where the value tells us how important it is for the robot to follow the specific route. If the robot knows that it needs to go only to the north then the importance to go there will be maximum 1 * 1 * 1 * 1 = 1.
+So for example if the probability that robot goes to the north is 1/4 and the probability of its transition = 1, then the probability that it goes to the north twice will be 1/4 * 1 * 1/4 * 1 = 1/16 provided that states are not important. This process is called ** *Importance sampling* ** where the value tells us how important it is for the robot to follow the specific route. If the robot knows that it needs to go only to the north then the importance to go there will be maximum 1 * 1 * 1 * 1 = 1.
 
 Now if we have some deterministic policy to be learnt and some stochastic policy to explore we can get their importance sampling ratio:
 
 **$$p = \frac{\prod_{i} \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i})}{\prod_{i} b(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i})} = \frac{\prod_{i} \pi(A_{i} | S_{i})}{\prod_{i} b(A_{i} | S_{i})}$$**
 
-We cancel out the transitions because the route is the same for both to get its ratio. For example, the probability of **$\pi$** = ¼ and probability of *b* = ⅓, then the ratio is  ¾. So now imagine that the reward of our route is 10 then ¾ * 10 = 7.5 that indicates the reword that we actually would not get using **$\pi$**, because ¼ * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
+We cancel out the transitions because the route is the same for both to get its ratio. For example, the probability of **$\pi$** = 1/4 and probability of *b* = 1/3, then the ratio is  3/4. So now imagine that the reward of our route is 10 then 3/4 * 10 = 7.5 that indicates the reward that we actually would not get using **$\pi$**, because 1/4 * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
 
-One step off policy sarsa can look like this:
+One step off-policy SARSA can look like this:
 **$$Q(S_{t},a) = Q(S_{t},a) + \alpha p(R - Q(S_{t},a) + \gamma Q(S_{t+1}, a))$$**
 
 ## ANN Basics
 
-![ann](https://user-images.githubusercontent.com/17081096/229552010-e1f1d899-e138-472e-a845-d494532ac080.jpg)
+![ann](https://user-images.githubusercontent.com/17081096/229696547-2159e37c-f996-4414-ad71-0d035a853704.jpg)
 
 In tasks like CartPole and MountainCar we can easily use table q-values approaches as our actions are discrete and states have small dimensions. In fact we rather prefer tables because it's easy, gives precision, speed and the convergence to the optima are guaranteed. But for tasks like BipedalWalker we not only have many dimensional continuous states, which are hard to fit into a discrete table, but also have action space with evenly distributed values.
 We now need to consider some linear / non linear weight functions for both states and actions.
 
-## Monte Carlo Policy Gradient
+## Policy Gradient
 
+### Episodic Monte Carlo
 
+With policy gradient method we can change our continuous policy smoothly with probability between 0 - 1 by using a function with w-parameters.
+To get the output between 0 - 1 we can use softmax output:
 
+$$\pi(a | s, w) = \frac{e^{h(s, a, w)}}{\sum_{i}e^{h(s, i, w)}}$$
+
+According to the picture above we now need to maximize our values by using the policy with respect to w-parameters such as:
+
+$$\nabla J(w) = \sum_{a}q_{\pi}(S,a)\nabla\pi (a|S,w)$$
+
+$$w = w + \alpha  \sum_{a}q_{\pi}(S,a)\nabla\pi (a|S,w)$$
+
+In our w-function model we will tune parameters w to maximize a q-value.
+
+With respect to exact policy:
+
+$$w = w + \alpha  \sum_{a}\pi(a|S,w) q_{\pi}(S,a)\frac{\nabla\pi (a|S,w)}{\pi (a|S,w)}$$
+
+With respect to exact action A:
+
+$$w = w + \alpha q_{\pi}(S,A)\frac{\nabla\pi (A|S,w)}{\pi (A|S,w)}$$
+
+But q is a value that represents all rewards traversing all the further states, it is usually called G, see the picture:
+
+![grad](https://user-images.githubusercontent.com/17081096/229701445-a8d96ee5-f078-43a8-9dfe-c093a83b21ac.jpg)
+
+According to the picture above:
+
+$$w = w + \alpha G \nabla ln(\pi(A|S,w))$$
+
+Simple tensorflow python variant can look like this:
+
+```python
+@tf.function()
+def train(self, data):
+    for state, action, reward in data:
+        with tf.GradientTape() as tape:
+            policy = self(state)[0][action]
+            loss = -tf.math.log(policy) * (reward)
+        gradients = tape.gradient(loss, self.trainable_variables)
+        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+    return 0
+```
+
+We get policy from the model by using model weights **w**, **state** and an action **A** - $\pi(A|S,w)$ is satisfied. We have sum of rewards **G** for every step according to the picture above, and we compute $ln(\pi)$. We also add **-** sign because usually we use some sort of descent optimizers (SGD, Adam) and we convert it to ascent. At the end we calculate gradients and apply them, where $\alpha$ is set up in optimizer. 
 
 
 
