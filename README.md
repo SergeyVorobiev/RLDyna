@@ -263,5 +263,96 @@ def train(self, data):
 
 We get policy from the model by using model weights **w**, **state** and an action **A** - $\pi(A|S,w)$ is satisfied. We have sum of rewards **G** for every step according to the picture above, and we compute $ln(\pi)$. We also add **-** sign because usually we use some sort of descent optimizers (SGD, Adam) and we convert it to ascent. At the end we calculate gradients and apply them, where $\alpha$ is set up in optimizer. 
 
+## Nonlinear Temporal Difference Algorithms with Eligibility Traces TD($\lambda$)
 
+Let us recall our previously discussed simple Q & U formulas:
+
+**$$U(S) = U(S) + \alpha (R - U(S) + \gamma {U}'(S))$$**
+
+**$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma Q({S}', {a}'))$$**
+
+We now want to calculate our Q & U values with w-parameter vectors - $U(S, w)$ & $Q(S, a, w)$ where we can update parameters like this:
+
+**$$w = w + \alpha(R - U(S, w) + \gamma {U}'(S, w))\nabla U(S, w)$$**
+
+**$$w = w + \alpha(R - Q(S, a, w) + \gamma {Q}'(S, a, w))\nabla Q(S, a, w)$$**
+
+As we can notice when the difference between $U$ and ${U}'$ becomes R then $R - R = 0$ that give us $w = w$ mening that now our $w$ stop to change and are optimal, but if we have the difference (error) then we multiply this error by $\nabla$ to give us the value to tune w in accordance to error. Recal from picture above that $\nabla$ gives us the relation between error and weight difference.
+
+Eligibility traces resembles n-steps algorithms but here we want to track and collect gradients from several steps and apply them up to the end of an episode, see the picture:
+
+![traces](https://user-images.githubusercontent.com/17081096/230147105-a79aac54-3697-4c88-bb2f-cc32ddb03c7e.jpg)
+
+When we apply the gradient to weights, we do not forget about it, we keep it, and on the next step we get a new gradient and add the old one with some fading factor $\lambda$. It allows us to trace the path, by regulating $\lambda$ we specify how far back we will track the value changes.
+
+Now we are ready to write some pseudocode:
+
+One step U variant TD($\lambda$):
+
+```
+z = gamma * lambda * z + gradient(U(S, w))
+
+sigma = R + gamma * U(S', w) - U(S, w)
+
+w = w + alpha * sigma * z
+```
+
+One step Q variant SARSA($\lambda$):
+
+```
+z = gamma * lambda * z + gradient(Q(S, a, w))
+
+sigma = R + gamma * Q(S', a, w) - Q(S, a, w)
+
+w = w + alpha * sigma * z
+
+```
+
+We can see that we collect gradients into z by using fading out $\lambda$ factor, and after we compute the error $\sigma$ we multiply collection of gradients z by error and update out weights.
+
+Possible python + tensorflow code:
+
+```python
+
+    @tf.function()
+    def train(self, data):
+    
+        # Technically, this is one step algorithm, we expect that for cycle will be invoked only once
+        for next_state, q, reward, next_action, done, discount, lambda_v, alpha in data:
+            with tf.GradientTape() as tape:
+                qs_next = self(tf.expand_dims(next_state, 0), training=False)[0]
+                next_action = tf.cast(next_action, tf.int32)
+                q_next = qs_next[next_action]
+                trainable_vars = self.trainable_variables
+                grads = tape.gradient(q_next, trainable_vars)  # Get the gradients from q
+
+                # Initialize Z = 0 (Eligibility traces) and reset them every episode
+                if self._z.__len__() == 0:
+                    for grad in grads:
+                        v = tf.Variable(tf.zeros(grad.shape), trainable=False)
+                        self._z.append(v)
+
+                # Calculates the error = R + y * Qn(S, A, w) - QAlgorithm(S, A, w)
+                error = reward + discount * q_next - q
+
+                total_grads = []
+                for i in range(len(grads)):
+
+                    # z = y * lambda * z + gradient(q(A, S, w)
+                    self._z[i].assign(discount * lambda_v * self._z[i] + grads[i])
+
+                    # total_grad = alpha * error * self._z[i]
+                    total_grad = -error * self._z[i]  # Convert desc to asc, alpha in opt.
+                    total_grads.append(total_grad)
+                self.optimizer.apply_gradients(zip(total_grads, self.trainable_variables))
+
+                # Reset Z-traces after episode ends
+                if done > 0.5:  # to not convert back to boolean
+                    for i in range(len(grads)):
+                        self._z[i].assign(0 * grads[i])
+        return 0
+        
+```
+
+## Actor & Critic
 
