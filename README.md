@@ -35,6 +35,8 @@
  
  * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
  
+ * **SARSA($\lambda$) nonlinear temporal difference with Eligibility Traces** method.
+ 
  **Shelter:**
  
  * **temporal difference off policy control tabular Q-learning** method.
