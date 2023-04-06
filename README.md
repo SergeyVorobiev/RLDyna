@@ -1,7 +1,7 @@
 # RLDyna
  Reinforcement learning from scratch.
  
- ![FrozenLake](https://github.com/SergeyVorobiev/RLDyna/blob/f02844dd02f5c142598e3696ab7dbdd734b6cb36/FL2.jpg)
+![poster](https://user-images.githubusercontent.com/17081096/230445275-e5625fc3-da73-4884-89c0-e539e3e18b23.jpg)
 
  A little project for pyhton 3+ that shows an essence of reinforcement learning.
  
@@ -290,9 +290,10 @@ Now we are ready to write some pseudocode:
 One step U variant TD($\lambda$):
 
 ```
-z = gamma * lambda * z + gradient(U(S, w))
+# z - must be 0 after each episode
+z = discount * lambda * z + gradient(U(S, w))
 
-sigma = R + gamma * U(S', w) - U(S, w)
+sigma = R + discount * U(S', w) - U(S, w)
 
 w = w + alpha * sigma * z
 ```
@@ -300,9 +301,10 @@ w = w + alpha * sigma * z
 One step Q variant SARSA($\lambda$):
 
 ```
-z = gamma * lambda * z + gradient(Q(S, a, w))
+# z - must be 0 after each episode
+z = discount * lambda * z + gradient(Q(S, a, w))
 
-sigma = R + gamma * Q(S', a, w) - Q(S, a, w)
+sigma = R + discount * Q(S', a, w) - Q(S, a, w)
 
 w = w + alpha * sigma * z
 
@@ -314,45 +316,94 @@ Possible python + tensorflow code:
 
 ```python
 
-    @tf.function()
-    def train(self, data):
-    
-        # Technically, this is one step algorithm, we expect that for cycle will be invoked only once
-        for next_state, q, reward, next_action, done, discount, lambda_v, alpha in data:
-            with tf.GradientTape() as tape:
-                qs_next = self(tf.expand_dims(next_state, 0), training=False)[0]
-                next_action = tf.cast(next_action, tf.int32)
-                q_next = qs_next[next_action]
-                trainable_vars = self.trainable_variables
-                grads = tape.gradient(q_next, trainable_vars)  # Get the gradients from q
+class NNSARSALambda(Model):
 
-                # Initialize Z = 0 (Eligibility traces) and reset them every episode
-                if self._z.__len__() == 0:
-                    for grad in grads:
-                        v = tf.Variable(tf.zeros(grad.shape), trainable=False)
-                        self._z.append(v)
+    def __init__(self, inputs, outputs, lambda_v, **kwargs):
+        super(NNSARSALambda, self).__init__(inputs, outputs, **kwargs)
+        self._z = []
+        self._lambda = lambda_v
 
-                # Calculates the error = R + y * Qn(S, A, w) - QAlgorithm(S, A, w)
-                error = reward + discount * q_next - q
+    # One step only (x = state, y = [next_q, reward, action, done, discount]
+    def train_step(self, data):
+        x = data[0]
+        y = data[1][0]
+        action = y[2]
+        done = y[3]
+        discount = y[4]
+        with tf.GradientTape() as tape:
+            qs = self(x, training=True)[0]
+            q = qs[tf.cast(action, tf.int32)]
+        grads = tape.gradient(q, self.trainable_variables)  # Get the gradients from q
 
-                total_grads = []
-                for i in range(len(grads)):
+        # Initialize Z = 0 (Eligibility traces) and reset them every episode
+        if self._z.__len__() == 0:
+            for grad in grads:
+                v = tf.Variable(tf.zeros(grad.shape), trainable=False)
+                self._z.append(v)
 
-                    # z = y * lambda * z + gradient(q(A, S, w)
-                    self._z[i].assign(discount * lambda_v * self._z[i] + grads[i])
+        error = self.compiled_loss(
+            y,
+            qs,
+        )
 
-                    # total_grad = alpha * error * self._z[i]
-                    total_grad = -error * self._z[i]  # Convert desc to asc, alpha in opt.
-                    total_grads.append(total_grad)
-                self.optimizer.apply_gradients(zip(total_grads, self.trainable_variables))
+        total_grads = []
+        for i in range(len(grads)):
 
-                # Reset Z-traces after episode ends
-                if done > 0.5:  # to not convert back to boolean
-                    for i in range(len(grads)):
-                        self._z[i].assign(0 * grads[i])
+            # z = y * lambda * z + gradient(q(A, S, w)
+            self._z[i].assign(discount * self._lambda * self._z[i] + grads[i])
+
+            # total_grad = alpha * error * self._z[i]
+            total_grad = -error * self._z[i]  # Convert desc to asc, alpha in opt.
+            total_grads.append(total_grad)
+
+        self.optimizer.apply_gradients(zip(total_grads, self.trainable_variables))
+
+        # Reset Z-traces after episode ends
+        tf.cond(done > 0.5, lambda: list(map(lambda z, grad: z.assign(0 * grad), self._z, grads)), lambda: self._z)
         return 0
+
+
+    # Loss function (can be static in another class)
+    def one_step_sarsa_lambda(y, qs):
+        q_next = y[0]
+        reward = y[1]
+        action = y[2]
+        discount = y[4]
+
+        # Calculates the error = R + y * Qn(S, A, w) - Q(S, A, w)
+        return reward + discount * q_next - qs[tf.cast(action, tf.int32)]
         
 ```
 
 ## Actor & Critic
+
+Methods that learn policy and value functions separately at the same time are called **Actor–Critic** methods, where **Actor** represents a model that learns **policy**, and **Critic** represents a model that learns **values** (usually U-values for states).
+
+As we already know how to create policy models by using Policy Gradient Theorem and we know how to create TD($\lambda$) with Eligibility traces we can combine them into Actor and Critic.
+
+Actor TD($\lambda$):
+
+```
+# z - must be zero after each episode, I - must be 1
+z = discount * lambda * z + I * gradient(ln(policy(A|S, w)))
+
+w = w + alpha * sigma * z
+
+I = discount * I
+
+```
+
+Critic (Episodic Policy Gradient with Eligibility Traces):
+
+```
+# z - must be zero after each episode
+z = discount * lambda * z + gradient(U(S, w))
+
+sigma = R + discount * U(S', w) - U(S, w)
+
+w = w + alpha * sigma * z
+
+```
+
+Eligibility traces (z), and weight vectors (w) are different for each model, the main trick here is that Actor uses sigma (error) from Critic to build its weights.
 
