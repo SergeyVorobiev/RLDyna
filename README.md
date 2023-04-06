@@ -1,7 +1,7 @@
 # RLDyna
  Reinforcement learning from scratch.
  
- ![FrozenLake](https://github.com/SergeyVorobiev/RLDyna/blob/f02844dd02f5c142598e3696ab7dbdd734b6cb36/FL2.jpg)
+![poster](https://user-images.githubusercontent.com/17081096/230445275-e5625fc3-da73-4884-89c0-e539e3e18b23.jpg)
 
  A little project for pyhton 3+ that shows an essence of reinforcement learning.
  
@@ -11,43 +11,43 @@
  
  **Frozen Lake:**
  
- * **temporal difference off policy control tabular QAlgorithm-learning** method + simple CNN.
+ * **temporal difference off policy control tabular Q-learning** method + simple CNN.
  
- * **temporal difference on policy control tabular n-steps tree backup QAlgorithm-learning** method + simple CNN.
+ * **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
  
- * **temporal difference off policy control tabular Double QAlgorithm-learning** method + simple CNN.
+ * **temporal difference off policy control tabular Double Q-learning** method + simple CNN.
  
- * **temporal difference on policy control tabular n-steps SARSAAlgorithm** method + simple CNN.
+ * **temporal difference on policy control tabular n-steps SARSA** method + simple CNN.
  
- * **temporal difference on policy control tabular SARSAAlgorithm** method + simple CNN.
+ * **temporal difference on policy control tabular SARSA** method + simple CNN.
  
- * **temporal difference on policy control tabular Expected SARSAAlgorithm** method + simple CNN.
+ * **temporal difference on policy control tabular Expected SARSA** method + simple CNN.
  
  **Cart Pole:**
  
- * **temporal difference off policy control tabular QAlgorithm-learning** method.
+ * **temporal difference off policy control tabular Q-learning** method.
  
- * **temporal difference on policy control tabular n-steps tree backup QAlgorithm-learning** method.
+ * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
  
  * **Monte Carlo Policy Gradient** method.
  
  **Mountain Car:**
  
- * **temporal difference on policy control tabular n-steps tree backup QAlgorithm-learning** method.
+ * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
  
  **Shelter:**
  
- * **temporal difference off policy control tabular QAlgorithm-learning** method.
+ * **temporal difference off policy control tabular Q-learning** method.
  
- **Cliff Walking:** *(See the difference between SARSAAlgorithm & QAlgorithm)*
+ **Cliff Walking:** *(See the difference between SARSA & Q)*
  
- * **temporal difference off policy control tabular QAlgorithm-learning** method.
+ * **temporal difference off policy control tabular Q-learning** method.
  
- * **temporal difference on policy control tabular SARSAAlgorithm** method.
+ * **temporal difference on policy control tabular SARSA** method.
  
  The entry point (main) *GymMain.py*.
  
- Different algorithms for testing (SARSAAlgorithm, MonteCarlo, DQ, TreeBackupAlgorithm, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
+ Different algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
  
  NN models can be added by extending from *RModel.py*.
  
@@ -131,47 +131,47 @@ And for the last iteration it gets **$U(S0) = 1 * 1 * (-1R + 1 * 8R) = 7R$**. Fu
 ### Discount
 As we see if $\gamma = 1$, it does not have an effect, but for tasks with long continuous nature we possibly want to decrease the influence of the state values that are far away from our current state. The less the $\gamma$ the more we focus only on the values of the states that are close to us. for example if $\gamma = 0$ you can see that all the further values of the next states will cancel out because $0 * U(S') = 0$, and we will only consider the value of the next R by doing the transition to the next state.
 
-There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common **off policy QAlgorithm-learning** approach, to avoid to mess up with evaluating policy. QAlgorithm-learning allows us to choose an action greedily, according to the current action value (QAlgorithm-value) and calculates transitions step by step.
+There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common **off policy Q-learning** approach, to avoid to mess up with evaluating policy. Q-learning allows us to choose an action greedily, according to the current action value (Q-value) and calculates transitions step by step.
 
-## QAlgorithm values
+## Q values
 
 We now want to focus not on the value of the state but on the value of the particular action being in the particular state. It allows us to choose the most valuable action for the particular state.
 
-Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the QAlgorithm value for the action we just need to pull the arm several times and get the avearage of the results. Let's say we used the arm 3 times and got {-1, 3, 1}, that gives us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic results: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
+Suppose we stay at the arm bandit, for now we do not need the states we focus only on the arm and our action is to pull the arm. To calculate the Q value for the action we just need to pull the arm several times and get the avearage of the results. Let's say we used the arm 3 times and got {-1, 3, 1}, that gives us the average estimation for the 4th time - **$Q_{4} (a_{0}) = (-1 + 3 + 1) / 3 = 1$**. We now have the formula saying us how good is to choose the particular action according to historic results: **$$Q_{n+1} = 1/n \sum_{i=1}^n R_{i}$$**
 To avoid collecting the array of values to calculate the average, we can use iterative approach, because: **$$1/n \sum_{i=1}^n R_{i} = Q_{n} + 1/n * (R_{n} - Q_{n})$$** 
-Now we only need to keep the current QAlgorithm and n representing the count of choosing the particular action.
+Now we only need to keep the current Q and n representing the count of choosing the particular action.
 
 Can we replace n which we need to keep for every action and which needs to be increased every time, by some constant learning rate? Yes we can, and it will mean
 that we will only care about the average of the last n usages, it is also very useful if our probability distribution is not stationary. For example **$\alpha = 1 / 100$** would mean that we only care about the last 100 usages of the particular action, our final result is: **$$Q_{n+1} = Q_{n} + \alpha (R_{n} - Q_{n})$$**
 
-Similar to the U formula, the QAlgorithm looks like this: **$$QAlgorithm(S,a) = QAlgorithm(S,a) + \alpha (R_{n} - QAlgorithm(S,a) + \gamma maxQ(S', a))$$**
+Similar to the U formula, the Q looks like this: **$$Q(S,a) = Q(S,a) + \alpha (R_{n} - Q(S,a) + \gamma maxQ(S', a))$$**
 **$$\pi(S) = argmax_{a} Q_{\pi}(S, a)$$**
-We see now that according to using maxQ for every further state along the path, our QAlgorithm will have the maximum possible value for every state-action pair, and our policy now is to choose an action with maximum q-value.
+We see now that according to using maxQ for every further state along the path, our Q will have the maximum possible value for every state-action pair, and our policy now is to choose an action with maximum q-value.
 
-But now we encounter the problem, if we choose the action with maximum QAlgorithm value we could end up with a non optimal result. If we can get some positive QAlgorithm value for an action, we will not use actions that lead to unvisited states because their Qs = 0. Or imagine some states could give us random rewards with some probability distribution. We could have -1 for the first state and -2 for the second, but despite the fact that the second state could have the better distribution mean, we will always choose the first state, because we choose QAlgorithm greedily. That leads us to the **Epsilon Greedy** algorithm.
+But now we encounter the problem, if we choose the action with maximum Q value we could end up with a non optimal result. If we can get some positive Q value for an action, we will not use actions that lead to unvisited states because their Qs = 0. Or imagine some states could give us random rewards with some probability distribution. We could have -1 for the first state and -2 for the second, but despite the fact that the second state could have the better distribution mean, we will always choose the first state, because we choose Q greedily. That leads us to the **Epsilon Greedy** algorithm.
 
 ### Epsilon Greedy
 
-To give the algorithm the ability to explore and choose any possible action for every state we introduce some epsilon value. Let's say we have epsilon = 0.05 it means that now we would choose an action according to QAlgorithm value greedily in 95% cases, but in 5% we will choose the action randomly. Pseudocode:
+To give the algorithm the ability to explore and choose any possible action for every state we introduce some epsilon value. Let's say we have epsilon = 0.05 it means that now we would choose an action according to Q value greedily in 95% cases, but in 5% we will choose the action randomly. Pseudocode:
 ```python
 action = RandomFloatBetween(0, 1) <= epsilon ? chooseRandom(actions) : maxQ(actions)
 ```
 
-### SARSAAlgorithm
+### SARSA
 
-This is one yet type of Markov chain based on rewards, slightly differs from previous QAlgorithm. Classic one step on-policy form looks like this:
+This is one yet type of Markov chain based on rewards, slightly differs from previous Q. Classic one step on-policy form looks like this:
 
-**$$QAlgorithm(S,a) = QAlgorithm(S,a) + \alpha (R - QAlgorithm(S,a) + \gamma QAlgorithm(S', a'))$$**
+**$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma Q(S', a'))$$**
 
-We can see the difference from classic QAlgorithm is that now we choose the next action according to the policy that could not mandatory be max QAlgorithm action. See Cliff Walker example, QAlgorithm behaves more aggressively with maximal optimality whereas SARSAAlgorithm is more careful.
+We can see the difference from classic Q is that now we choose the next action according to the policy that could not mandatory be max Q action. See Cliff Walker example, Q behaves more aggressively with maximal optimality whereas SARSA is more careful.
 
 ### Dyna
 The one of the simplest versions of Dyna is shown below:
 
 ![Dyna](https://user-images.githubusercontent.com/17081096/226061516-59c91c23-3bde-4281-af3b-c370f4c5f233.jpg)
 
-When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our QAlgorithm values.
-The application contains *SimplePlanning.py* that can keep a specified amount of data and use it to addinitally train QAlgorithm values after several iterations.
+When we get the next S and Reward from the environment we can memorize it to train later. After collecting some memories we can obtain them to evaluate our Q values.
+The application contains *SimplePlanning.py* that can keep a specified amount of data and use it to addinitally train Q values after several iterations.
 
 
 ## Table & NN
@@ -191,7 +191,7 @@ If we train the model for one specific set of states, then it can upset the outp
 
 ![ImSamp](https://user-images.githubusercontent.com/17081096/229685902-dc7791d4-4272-4670-8958-6466dd50612b.jpg)
 
-Our tabular algorithms (QAlgorithm, SARSAAlgorithm etc.) learn action values not for the optimal policy, but for a near-optimal policy that still explores by using an e-greedy approach. But it is possible to use a more straightforward approach. We can use two policies, one that should become optimal policy **$\pi$**, and one that generates states, is called behavior policy - *b*.
+Our tabular algorithms (Q, SARSA etc.) learn action values not for the optimal policy, but for a near-optimal policy that still explores by using an e-greedy approach. But it is possible to use a more straightforward approach. We can use two policies, one that should become optimal policy **$\pi$**, and one that generates states, is called behavior policy - *b*.
 
 From the picture above we can see the specified trajectory that the robot did due to searching. We can calculate the probability of this trajectory, for that, we just need to multiply the probabilities of actions the robot did and the probabilities of transitions: **$$p(S_{2} | S_{1}, a) * \pi(a | S_{1}) * p(S_{3} | S_{2}, a) * \pi(a | S_{2}) * p(S_{4} | S_{3}, a) * \pi(a | S_{3}) $$** In other word we got the formula:
 **$$\prod_{i=1}^n \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i}) $$**
@@ -204,8 +204,8 @@ Now if we have some deterministic policy to be learnt and some stochastic policy
 
 We cancel out the transitions because the route is the same for both to get its ratio. For example, the probability of **$\pi$** = 1/4 and probability of *b* = 1/3, then the ratio is  3/4. So now imagine that the reward of our route is 10 then 3/4 * 10 = 7.5 that indicates the reward that we actually would not get using **$\pi$**, because 1/4 * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
 
-One step off-policy SARSAAlgorithm can look like this:
-**$$QAlgorithm(S_{t},a) = QAlgorithm(S_{t},a) + \alpha p(R - QAlgorithm(S_{t},a) + \gamma QAlgorithm(S_{t+1}, a))$$**
+One step off-policy SARSA can look like this:
+**$$Q(S_{t},a) = Q(S_{t},a) + \alpha p(R - Q(S_{t},a) + \gamma Q(S_{t+1}, a))$$**
 
 ## ANN Basics
 
@@ -263,5 +263,147 @@ def train(self, data):
 
 We get policy from the model by using model weights **w**, **state** and an action **A** - $\pi(A|S,w)$ is satisfied. We have sum of rewards **G** for every step according to the picture above, and we compute $ln(\pi)$. We also add **-** sign because usually we use some sort of descent optimizers (SGD, Adam) and we convert it to ascent. At the end we calculate gradients and apply them, where $\alpha$ is set up in optimizer. 
 
+## Nonlinear Temporal Difference Algorithms with Eligibility Traces TD($\lambda$)
 
+Let us recall our previously discussed simple Q & U formulas:
+
+**$$U(S) = U(S) + \alpha (R - U(S) + \gamma {U}'(S))$$**
+
+**$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma Q({S}', {a}'))$$**
+
+We now want to calculate our Q & U values with w-parameter vectors - $U(S, w)$ & $Q(S, a, w)$ where we can update parameters like this:
+
+**$$w = w + \alpha(R - U(S, w) + \gamma {U}'(S, w))\nabla U(S, w)$$**
+
+**$$w = w + \alpha(R - Q(S, a, w) + \gamma {Q}'(S, a, w))\nabla Q(S, a, w)$$**
+
+As we can notice when the difference between $U$ and ${U}'$ becomes R then $R - R = 0$ that give us $w = w$ mening that now our $w$ stop to change and are optimal, but if we have the difference (error) then we multiply this error by $\nabla$ to give us the value to tune w in accordance to error. Recal from picture above that $\nabla$ gives us the relation between error and weight difference.
+
+Eligibility traces resembles n-steps algorithms but here we want to track and collect gradients from several steps and apply them up to the end of an episode, see the picture:
+
+![traces](https://user-images.githubusercontent.com/17081096/230147105-a79aac54-3697-4c88-bb2f-cc32ddb03c7e.jpg)
+
+When we apply the gradient to weights, we do not forget about it, we keep it, and on the next step we get a new gradient and add the old one with some fading factor $\lambda$. It allows us to trace the path, by regulating $\lambda$ we specify how far back we will track the value changes.
+
+Now we are ready to write some pseudocode:
+
+One step U variant TD($\lambda$):
+
+```
+# z - must be 0 after each episode
+z = discount * lambda * z + gradient(U(S, w))
+
+sigma = R + discount * U(S', w) - U(S, w)
+
+w = w + alpha * sigma * z
+```
+
+One step Q variant SARSA($\lambda$):
+
+```
+# z - must be 0 after each episode
+z = discount * lambda * z + gradient(Q(S, a, w))
+
+sigma = R + discount * Q(S', a, w) - Q(S, a, w)
+
+w = w + alpha * sigma * z
+
+```
+
+We can see that we collect gradients into z by using fading out $\lambda$ factor, and after we compute the error $\sigma$ we multiply collection of gradients z by error and update out weights.
+
+Possible python + tensorflow code:
+
+```python
+
+class NNSARSALambda(Model):
+
+    def __init__(self, inputs, outputs, lambda_v, **kwargs):
+        super(NNSARSALambda, self).__init__(inputs, outputs, **kwargs)
+        self._z = []
+        self._lambda = lambda_v
+
+    # One step only (x = state, y = [next_q, reward, action, done, discount]
+    def train_step(self, data):
+        x = data[0]
+        y = data[1][0]
+        action = y[2]
+        done = y[3]
+        discount = y[4]
+        with tf.GradientTape() as tape:
+            qs = self(x, training=True)[0]
+            q = qs[tf.cast(action, tf.int32)]
+        grads = tape.gradient(q, self.trainable_variables)  # Get the gradients from q
+
+        # Initialize Z = 0 (Eligibility traces) and reset them every episode
+        if self._z.__len__() == 0:
+            for grad in grads:
+                v = tf.Variable(tf.zeros(grad.shape), trainable=False)
+                self._z.append(v)
+
+        error = self.compiled_loss(
+            y,
+            qs,
+        )
+
+        total_grads = []
+        for i in range(len(grads)):
+
+            # z = y * lambda * z + gradient(q(A, S, w)
+            self._z[i].assign(discount * self._lambda * self._z[i] + grads[i])
+
+            # total_grad = alpha * error * self._z[i]
+            total_grad = -error * self._z[i]  # Convert desc to asc, alpha in opt.
+            total_grads.append(total_grad)
+
+        self.optimizer.apply_gradients(zip(total_grads, self.trainable_variables))
+
+        # Reset Z-traces after episode ends
+        tf.cond(done > 0.5, lambda: list(map(lambda z, grad: z.assign(0 * grad), self._z, grads)), lambda: self._z)
+        return 0
+
+
+    # Loss function (can be static in another class)
+    def one_step_sarsa_lambda(y, qs):
+        q_next = y[0]
+        reward = y[1]
+        action = y[2]
+        discount = y[4]
+
+        # Calculates the error = R + y * Qn(S, A, w) - Q(S, A, w)
+        return reward + discount * q_next - qs[tf.cast(action, tf.int32)]
+        
+```
+
+## Actor & Critic
+
+Methods that learn policy and value functions separately at the same time are called **Actor–Critic** methods, where **Actor** represents a model that learns **policy**, and **Critic** represents a model that learns **values** (usually U-values for states).
+
+As we already know how to create policy models by using Policy Gradient Theorem and we know how to create TD($\lambda$) with Eligibility traces we can combine them into Actor and Critic.
+
+Actor TD($\lambda$):
+
+```
+# z - must be zero after each episode, I - must be 1
+z = discount * lambda * z + I * gradient(ln(policy(A|S, w)))
+
+w = w + alpha * sigma * z
+
+I = discount * I
+
+```
+
+Critic (Episodic Policy Gradient with Eligibility Traces):
+
+```
+# z - must be zero after each episode
+z = discount * lambda * z + gradient(U(S, w))
+
+sigma = R + discount * U(S', w) - U(S, w)
+
+w = w + alpha * sigma * z
+
+```
+
+Eligibility traces (z), and weight vectors (w) are different for each model, the main trick here is that Actor uses sigma (error) from Critic to build its weights.
 
