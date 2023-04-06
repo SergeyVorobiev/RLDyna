@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.ExpectedSARSA import ExpectedSARSA
+from rl.algorithms.ExpectedSARSAAlgorithm import ExpectedSARSA
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.Table1D import Table1D

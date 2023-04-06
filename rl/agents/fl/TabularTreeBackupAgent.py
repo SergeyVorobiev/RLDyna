@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.TreeBackup import TreeBackup
+from rl.algorithms.TreeBackupAlgorithm import TreeBackupAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.Table1D import Table1D
@@ -22,7 +22,7 @@ class TabularTreeBackupAgent(RDynaAgentBuilder):
         e_greedy = EGreedyRPolicy(0.1, threshold=0.001, improve_step=0.001)
         planning = SimplePlanning(plan_batch_size=n_states, plan_step_size=n_states,
                                   memory_size=n_states * env.action_space.n * steps)
-        algorithm = TreeBackup(e_greedy, alpha=alpha, discount=discount, n_step=steps)
+        algorithm = TreeBackupAlgorithm(e_greedy, alpha=alpha, discount=discount, n_step=steps)
         models = [Table1D(n_states=n_states, n_actions=env.action_space.n)]
 
         return Dyna(models=models, algorithm=algorithm, planning=planning,

@@ -5,7 +5,7 @@ from rl.models.RModel import RModel
 from rl.policy.RPolicy import RPolicy
 
 
-class TreeBackup(RAlgorithm):
+class TreeBackupAlgorithm(RAlgorithm):
 
     def __init__(self, policy: RPolicy, alpha: float, discount: float, n_step: int = 1):
         super().__init__(policy, alpha, discount, n_step)
@@ -69,3 +69,6 @@ class TreeBackup(RAlgorithm):
             q = q + self._alpha * cur_error
             model.update_q(state, action, q, done)
         return error, batch
+
+    def get_a_distribution(self, models: [RModel], state: Any):
+        pass

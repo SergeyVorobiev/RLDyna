@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.SARSA import SARSA
+from rl.algorithms.SARSAAlgorithm import SARSAAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.Table1D import Table1D
@@ -30,7 +30,7 @@ class TabularSARSAAgent(RDynaAgentBuilder):
         # planning = NoPlanning()
 
         # Iterative algorithm
-        algorithm = SARSA(e_greedy, alpha=alpha, discount=discount)
+        algorithm = SARSAAlgorithm(e_greedy, alpha=alpha, discount=discount)
 
         # Model keeps the previously learned information and get the data back when needed.
         models = [Table1D(n_states=n_states, n_actions=env.action_space.n)]

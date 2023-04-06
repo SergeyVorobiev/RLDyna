@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.NSARSA import NSARSA
+from rl.algorithms.NSARSAAlgorithm import NSARSAAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.CNNQModel import CNNQModel
@@ -26,7 +26,7 @@ class CNNNSARSAAgent(RDynaAgentBuilder):
         planning = HashPlanning(plan_batch_size=200, plan_step_size=200,
                                 memory_size=200)
 
-        algorithm = NSARSA(e_greedy, alpha=alpha, discount=discount, n_step=steps)
+        algorithm = NSARSAAlgorithm(e_greedy, alpha=alpha, discount=discount, n_step=steps)
 
         # Batch size currently is not used, as we use only hash unique states
         models = [CNNQModel(input_shape=(env.get_y(), env.get_x(), 1), n_actions=env.action_space.n,

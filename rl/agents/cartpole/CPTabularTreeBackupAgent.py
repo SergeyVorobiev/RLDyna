@@ -1,7 +1,7 @@
 from gym import Env
 
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.TreeBackup import TreeBackup
+from rl.algorithms.TreeBackupAlgorithm import TreeBackupAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.models.DiscreteQTable import DiscreteQTable
 from rl.planning.NoPlanning import NoPlanning
@@ -29,7 +29,7 @@ class CPTabularTreeBackupAgent(RDynaAgentBuilder):
         planning = NoPlanning()
 
         # Iterative algorithm
-        algorithm = TreeBackup(e_greedy, alpha=alpha, discount=discount, n_step=400)
+        algorithm = TreeBackupAlgorithm(e_greedy, alpha=alpha, discount=discount, n_step=400)
         dim_min_max = [[-1.5, 1.5],
                        [-3, 3],
                        [-0.5, 0.5],

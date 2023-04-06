@@ -1,7 +1,7 @@
 from gym import Env
 
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.TreeBackup import TreeBackup
+from rl.algorithms.TreeBackupAlgorithm import TreeBackupAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.models.DiscreteQTable import DiscreteQTable
 from rl.planning.NoPlanning import NoPlanning
@@ -10,7 +10,7 @@ from rl.tasks.mountaincar.MountainCarDiscreteStatePrepare import MountainCarDisc
 from rl.tasks.mountaincar.MountainCarRewardEstimator import MountainCarRewardEstimator
 
 
-class MCTabularTreeBackupAgent(RDynaAgentBuilder):
+class MCarTabularTreeBackupAgent(RDynaAgentBuilder):
 
     def __init__(self, model_path=None, load_model=False):
         self._model_path = model_path
@@ -23,7 +23,7 @@ class MCTabularTreeBackupAgent(RDynaAgentBuilder):
         planning = NoPlanning()
 
         # Iterative algorithm
-        algorithm = TreeBackup(e_greedy, alpha=alpha, discount=discount, n_step=100)
+        algorithm = TreeBackupAlgorithm(e_greedy, alpha=alpha, discount=discount, n_step=100)
         dim_min_max = [[-1.2, 0.54],
                        [-0.06, 0.06]]
         table = DiscreteQTable(dim_min_max=dim_min_max, quant_size=10, n_actions=env.action_space.n,

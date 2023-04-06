@@ -5,6 +5,7 @@ from rl.environments.mountaincar.MountainCarEnvBuilder import MountainCarEnvBuil
 from rl.environments.cartpole.CartPoleEnvBuilder import CartPoleEnvBuilder
 from rl.environments.shelter.ShelterEnvBuilder import ShelterEnvBuilder
 from rl.environments.cliffwalking.CliffWalkingEnvBuilder import CliffWalkingEnvBuilder
+from rl.environments.EmptyEnvBuilder import EmptyEnvBuilder
 
 
 # When the model is saved it has two indices:
@@ -23,19 +24,21 @@ builders = {
     # The goal is to hold up for 500 iterations then the episode naturally ends, 10000+ episodes to learn.
     "CartPole": "CartPoleEnvBuilder",
 
-    # Q and MCPGAverBaseline (that is not intended for this task)
+    # QAlgorithm and MCPGAverBaselineAlgorithm (that is not intended for this task)
     "Shelter": "ShelterEnvBuilder",
 
-    # See the difference between SARSA & Q, Q runs by default, to set up, go to cw env builder
+    # See the difference between SARSAAlgorithm & QAlgorithm, QAlgorithm runs by default, to set up,
+    # go to cw env builder
     "CliffWalking": "CliffWalkingEnvBuilder",
 
     # "BipedalWalker-v3", "LunarLander-v2", "CarRacing-v0", "Pendulum-v1", etc.
-    # "AirRaid-v0", "SpaceInvaders-v0", "MsPacman-v0" - Could require Atari emulator, below commands could help:
+    # "AirRaid-v0", "SpaceInvaders-v0", "MsPacman-v0", ALE/Backgammon-v5 - Could require Atari emulator,
+    # below commands could help:
     # pip install ale-py
     # pip install gym[accept-rom-license]
 
     # Game name, print info, delay_frame
-    "ShowGame": ["EmptyEnvBuilder", "LunarLander-v2", True, 0]
+    "ShowGame": ["EmptyEnvBuilder", "BipedalWalker-v3", True, 0]
 }
 
 builder = "CartPole"  # FrozenLake, CartPole, MountainCar, Shelter, CliffWalking, ShowGame

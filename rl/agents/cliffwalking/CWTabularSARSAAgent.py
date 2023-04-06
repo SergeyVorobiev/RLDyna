@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.NSARSA import NSARSA
+from rl.algorithms.NSARSAAlgorithm import NSARSAAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.Table1D import Table1D
@@ -19,7 +19,7 @@ class CWTabularSARSAAgent(RDynaAgentBuilder):
 
         e_greedy = EGreedyRPolicy(0.2, threshold=0.05, improve_step=0.0001)
         planning = NoPlanning()
-        algorithm = NSARSA(e_greedy, alpha=alpha, discount=discount, n_step=4)
+        algorithm = NSARSAAlgorithm(e_greedy, alpha=alpha, discount=discount, n_step=4)
 
         models = [Table1D(n_states=n_states, n_actions=env.action_space.n)]
 

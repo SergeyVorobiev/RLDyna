@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.TreeBackup import TreeBackup
+from rl.algorithms.TreeBackupAlgorithm import TreeBackupAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.CNNQModel import CNNQModel
@@ -26,7 +26,7 @@ class CNNTBQNAgent(RDynaAgentBuilder):
         planning = HashPlanning(plan_batch_size=200, plan_step_size=200,
                                 memory_size=200)
 
-        algorithm = TreeBackup(e_greedy, alpha=alpha, discount=discount, n_step=steps)
+        algorithm = TreeBackupAlgorithm(e_greedy, alpha=alpha, discount=discount, n_step=steps)
 
         # Batch size currently is not used, as we use only hash unique states
         models = [CNNQModel(input_shape=(env.get_y(), env.get_x(), 1), n_actions=env.action_space.n,

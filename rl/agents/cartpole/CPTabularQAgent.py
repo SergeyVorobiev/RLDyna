@@ -1,7 +1,7 @@
 from gym import Env
 
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.Q import Q
+from rl.algorithms.QAlgorithm import QAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.models.DiscreteQTable import DiscreteQTable
 from rl.planning.NoPlanning import NoPlanning
@@ -29,7 +29,7 @@ class CPTabularQAgent(RDynaAgentBuilder):
         planning = NoPlanning()
 
         # Iterative algorithm
-        algorithm = Q(e_greedy, alpha=alpha, discount=discount)
+        algorithm = QAlgorithm(e_greedy, alpha=alpha, discount=discount)
         dim_min_max = [[-1.5, 1.5],
                        [-3, 3],
                        [-0.5, 0.5],

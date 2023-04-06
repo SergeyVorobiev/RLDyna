@@ -28,3 +28,6 @@ class EmptyAlgorithm(RAlgorithm):
 
     def update_policy(self):
         pass
+
+    def get_a_distribution(self, models: [RModel], state: Any):
+        pass

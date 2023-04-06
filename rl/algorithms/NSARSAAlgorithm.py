@@ -5,11 +5,14 @@ from rl.policy.RPolicy import RPolicy
 
 
 # on policy TD control n-step
-class NSARSA(RAlgorithm):
+class NSARSAAlgorithm(RAlgorithm):
 
     def __init__(self, policy: RPolicy, alpha: float, discount: float, n_step: int = 1):
         super().__init__(policy, alpha, discount, n_step)
         self._n_step = n_step
+
+    def get_a_distribution(self, models: [RModel], state: Any):
+        pass
 
     def plan(self, models: [RModel], batch) -> (float, Any):
         return self.train_from_past(models[0], batch)

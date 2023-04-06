@@ -93,7 +93,7 @@ class ShelterEnvBuilder(EnvBuilder):
 
         # build Dyna agent
         self._agent = agents[self._agent_name].build_agent(env)
-        if selected_agent == "MCPGAverBaseline":
+        if selected_agent == "MCPGAverBaselineAlgorithm":
             env.draw_values_setup(q_supplier=self._agent.get_a_distribution)
         else:
             env.draw_values_setup(q_supplier=self._agent.get_q_values)

@@ -6,7 +6,7 @@ from rl.planning.RLearnMemory import RLearnMemory
 from rl.policy.RPolicy import RPolicy
 
 
-# The base class of Q, SARSA, MC and others.
+# The base class of QAlgorithm, SARSAAlgorithm, MC and others.
 # The algorithm itself usually uses the 1 memory capacity because it learns from what it saw just right now.
 # Learning process from the memory is called planning.
 class RAlgorithm(RLearnMemory):

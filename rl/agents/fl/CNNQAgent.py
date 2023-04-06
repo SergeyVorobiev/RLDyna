@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.Q import Q
+from rl.algorithms.QAlgorithm import QAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.CNNQModel import CNNQModel
@@ -32,7 +32,7 @@ class CNNQAgent(RDynaAgentBuilder):
         planning = HashPlanning(plan_batch_size=200, plan_step_size=200,
                                 memory_size=200)
         # Iterative algorithm
-        algorithm = Q(e_greedy, alpha=alpha, discount=discount)
+        algorithm = QAlgorithm(e_greedy, alpha=alpha, discount=discount)
 
         # Batch size currently is not used, as we use only hash unique states
         models = [CNNQModel(input_shape=(env.get_y(), env.get_x(), 1), n_actions=env.action_space.n, batch_size=0,

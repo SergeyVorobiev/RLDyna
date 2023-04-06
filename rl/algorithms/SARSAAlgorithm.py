@@ -1,11 +1,10 @@
 from typing import Any
-
 from rl.algorithms.StepControl import StepControl
 from rl.models.RModel import RModel
 
 
-# off policy TD control
-class Q(StepControl):
+# on policy TD control
+class SARSAAlgorithm(StepControl):
 
     def get_v(self, models: [RModel], state: Any) -> float:
         pass
@@ -16,14 +15,14 @@ class Q(StepControl):
     def update_policy(self):
         pass
 
-    # Q(S,a) = Q(S,a) + alpha * [ R + y * maxQ(S`, a) - Q(S, a)]
     def train_sample(self, models: [RModel], state: Any, action: int, reward: float, next_state: Any,
                      done: bool, env_props: Any) -> float:
         q = models[0].get_q(state, action)
         g = reward
         if not done:
-            next_max_q = models[0].get_max_q(next_state)
-            g = reward + self._discount * next_max_q
+            a = self._policy.pick(models[0].get_q_values(next_state))
+            next_q = models[0].get_q(next_state, a)
+            g = g + self._discount * next_q
         error = g - q
         q = q + self._alpha * error
         models[0].update_q(state, action, q, done)

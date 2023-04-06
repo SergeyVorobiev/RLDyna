@@ -2,6 +2,7 @@ import tensorflow as tf
 from keras import Model
 
 
+# This is outdated, now we use just custom loss function CustomLoss.mc_policy_gradient() to train the model
 # noinspection PyAbstractClass
 class MCPGNNDiscrete(Model):
 

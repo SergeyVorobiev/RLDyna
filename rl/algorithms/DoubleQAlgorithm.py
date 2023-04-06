@@ -6,7 +6,7 @@ from rl.models.RModel import RModel
 
 
 # off policy TD control
-class DoubleQ(StepControl):
+class DoubleQAlgorithm(StepControl):
 
     def update_policy(self):
         pass

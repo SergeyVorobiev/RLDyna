@@ -1,11 +1,10 @@
 from abc import ABC
 from typing import Any
-
-import tensorflow as tf
 from rl.models.NNBasicModel import NNBasicModel
+import tensorflow as tf
 
 
-class MCPGModel(NNBasicModel, ABC):
+class SARSALambdaModel(NNBasicModel, ABC):
 
     # nn_build_function - in case if the model can not be loaded
     def __init__(self, n_actions, nn_build_function, epochs=1, model_path=None, load_model=None, model_index=0,
@@ -17,14 +16,12 @@ class MCPGModel(NNBasicModel, ABC):
     def update(self, data: Any):
         x = tf.convert_to_tensor(data[0])
         y = tf.convert_to_tensor(data[1])
-        self._model.fit(x=x, y=y, epochs=self._epochs, verbose=0)
+        self._model.fit(x=x, y=y, verbose=0)
 
-    # Outdated, was used fot MCPGNNDiscrete
-    def _update2(self, data: Any):
-        states = tf.data.Dataset.from_tensor_slices(data[0])
-        actions = tf.data.Dataset.from_tensor_slices(data[1])
-        rewards = tf.data.Dataset.from_tensor_slices(data[2])
-        baselines = tf.data.Dataset.from_tensor_slices(data[3])
-        data = tf.data.Dataset.zip((states, actions, rewards, baselines))
-        self._model.train(data)
+    def get_q_values(self, state: Any, model_index: int = 0):
+        q_values = self._model(tf.convert_to_tensor([state]), training=False)
+        return q_values[0].numpy()
 
+    def get_q(self, state, action: int, model_index: int = 0):
+        q_values = self.get_q_values(state)
+        return q_values[action]

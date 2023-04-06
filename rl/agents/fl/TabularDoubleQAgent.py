@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.DoubleQ import DoubleQ
+from rl.algorithms.DoubleQAlgorithm import DoubleQAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.Table1D import Table1D
@@ -30,7 +30,7 @@ class TabularDoubleQAgent(RDynaAgentBuilder):
         # planning = NoPlanning()
 
         # Iterative algorithm
-        algorithm = DoubleQ(e_greedy, alpha=alpha, discount=discount)
+        algorithm = DoubleQAlgorithm(e_greedy, alpha=alpha, discount=discount)
 
         # Model keeps the previously learned information and get the data back when needed.
         models = [Table1D(n_states=n_states, n_actions=env.action_space.n),

@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.Q import Q
+from rl.algorithms.QAlgorithm import QAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.Table1D import Table1D
@@ -19,7 +19,7 @@ class CWTabularQAgent(RDynaAgentBuilder):
 
         e_greedy = EGreedyRPolicy(0.1, threshold=0.001, improve_step=0.001)
 
-        algorithm = Q(e_greedy, alpha=alpha, discount=discount)
+        algorithm = QAlgorithm(e_greedy, alpha=alpha, discount=discount)
         planning = SimplePlanning(plan_batch_size=20, plan_step_size=20, memory_size=50)
         models = [Table1D(n_states=n_states, n_actions=env.action_space.n)]
 

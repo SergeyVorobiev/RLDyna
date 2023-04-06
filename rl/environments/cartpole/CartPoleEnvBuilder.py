@@ -48,7 +48,7 @@ class CartPoleEnvBuilder(EnvBuilder):
         self._scores = deque(maxlen=self._average_count)
         self._score_averages = deque(maxlen=self._average_count)
         self._gaps = deque(maxlen=self._average_count)
-        self._save_each_episodes = 50
+        self._save_each_episodes = 20
         self._standard = 500
 
     def get_iterations(self):
