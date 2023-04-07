@@ -1,7 +1,7 @@
 # RLDyna
  Reinforcement learning from scratch.
  
-![poster](https://user-images.githubusercontent.com/17081096/230445275-e5625fc3-da73-4884-89c0-e539e3e18b23.jpg)
+![poster](https://github.com/SergeyVorobiev/RLDyna/blob/ffde67b5eb6c5808c3cf4a1def96024e6bdc792e/poster.jpg)
 
  A little project for pyhton 3+ that shows an essence of reinforcement learning.
  
@@ -31,6 +31,8 @@
  
  * **Monte Carlo Policy Gradient** method.
  
+ * **nonlinear Monte Carlo with baseline, Policy Gradient Actor with TD Critic** method.
+ 
  **Mountain Car:**
  
  * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
@@ -46,6 +48,10 @@
  * **temporal difference off policy control tabular Q-learning** method.
  
  * **temporal difference on policy control tabular SARSA** method.
+ 
+ **Lunar Lander:**
+ 
+ * **nonlinear Monte Carlo with baseline, Policy Gradient Actor with TD Critic** method.
  
  The entry point (main) *GymMain.py*.
  
@@ -198,13 +204,13 @@ Our tabular algorithms (Q, SARSA etc.) learn action values not for the optimal p
 From the picture above we can see the specified trajectory that the robot did due to searching. We can calculate the probability of this trajectory, for that, we just need to multiply the probabilities of actions the robot did and the probabilities of transitions: **$$p(S_{2} | S_{1}, a) * \pi(a | S_{1}) * p(S_{3} | S_{2}, a) * \pi(a | S_{2}) * p(S_{4} | S_{3}, a) * \pi(a | S_{3}) $$** In other word we got the formula:
 **$$\prod_{i=1}^n \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i}) $$**
 
-So for example if the probability that robot goes to the north is 1/4 and the probability of its transition = 1, then the probability that it goes to the north twice will be 1/4 * 1 * 1/4 * 1 = 1/16 provided that states are not important. This process is called ** *Importance sampling* ** where the value tells us how important it is for the robot to follow the specific route. If the robot knows that it needs to go only to the north then the importance to go there will be maximum 1 * 1 * 1 * 1 = 1.
+So for example if the probability that robot goes to the north is 1/4 and the probability of its transition = 1, then the probability that it goes to the north twice will be 1/4 * 1 * 1/4 * 1 = 1/16 provided that states are not important. This process is called *Importance sampling* where the value tells us how important it is for the robot to follow the specific route. If the robot knows that it needs to go only to the north then the importance to go there will be maximum 1 * 1 * 1 * 1 = 1.
 
 Now if we have some deterministic policy to be learnt and some stochastic policy to explore we can get their importance sampling ratio:
 
 **$$p = \frac{\prod_{i} \pi(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i})}{\prod_{i} b(A_{i} | S_{i}) * p(S_{i+1} | S_{i}, A_{i})} = \frac{\prod_{i} \pi(A_{i} | S_{i})}{\prod_{i} b(A_{i} | S_{i})}$$**
 
-We cancel out the transitions because the route is the same for both to get its ratio. For example, the probability of **$\pi$** = 1/4 and probability of *b* = 1/3, then the ratio is  3/4. So now imagine that the reward of our route is 10 then 3/4 * 10 = 7.5 that indicates the reward that we actually would not get using **$\pi$**, because 1/4 * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
+We cancel out the transitions because the route is the same for both. For example, the probability of **$\pi$** = 1/4 and probability of *b* = 1/3, then the ratio is  3/4. So now imagine that the reward of our route is 10 then 3/4 * 10 = 7.5 that indicates the reward that we actually would not get using **$\pi$**, because 1/4 * 10 = 2.5 and 10 - 2.5 = 7.5. This ratio shows us lost profit if we would use **$\pi$**, but we use *b*.
 
 One step off-policy SARSA can look like this:
 **$$Q(S_{t},a) = Q(S_{t},a) + \alpha p(R - Q(S_{t},a) + \gamma Q(S_{t+1}, a))$$**
@@ -225,6 +231,8 @@ To get the output between 0 - 1 we can use softmax output:
 
 $$\pi(a | s, w) = \frac{e^{h(s, a, w)}}{\sum_{i}e^{h(s, i, w)}}$$
 
+Note that denominator is used to get sum of 1 (i.e. 1/6 + 3/6 + 2/6).
+
 According to the picture above we now need to maximize our values by using the policy with respect to w-parameters such as:
 
 $$\nabla J(w) = \sum_{a}q_{\pi}(S,a)\nabla\pi (a|S,w)$$
@@ -241,7 +249,7 @@ With respect to exact action A:
 
 $$w = w + \alpha q_{\pi}(S,A)\frac{\nabla\pi (A|S,w)}{\pi (A|S,w)}$$
 
-But q is a value that represents all rewards traversing all the further states, it is usually called G, see the picture:
+But q is a value that represents all rewards traversing all the further states i.e. G = R + Q'max or for u - G = R + U', see the picture:
 
 ![grad](https://user-images.githubusercontent.com/17081096/229701445-a8d96ee5-f078-43a8-9dfe-c093a83b21ac.jpg)
 
@@ -267,11 +275,11 @@ We get policy from the model by using model weights **w**, **state** and an acti
 
 ## Nonlinear Temporal Difference Algorithms with Eligibility Traces TD($\lambda$)
 
-Let us recall our previously discussed simple Q & U formulas:
+Let's recall our previously discussed simple Q & U formulas:
 
 **$$U(S) = U(S) + \alpha (R - U(S) + \gamma {U}'(S))$$**
 
-**$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma Q({S}', {a}'))$$**
+**$$Q(S,a) = Q(S,a) + \alpha (R - Q(S,a) + \gamma {Q}'(S, a))$$**
 
 We now want to calculate our Q & U values with w-parameter vectors - $U(S, w)$ & $Q(S, a, w)$ where we can update parameters like this:
 
@@ -279,7 +287,7 @@ We now want to calculate our Q & U values with w-parameter vectors - $U(S, w)$ &
 
 **$$w = w + \alpha(R - Q(S, a, w) + \gamma {Q}'(S, a, w))\nabla Q(S, a, w)$$**
 
-As we can notice when the difference between $U$ and ${U}'$ becomes R then $R - R = 0$ that give us $w = w$ mening that now our $w$ stop to change and are optimal, but if we have the difference (error) then we multiply this error by $\nabla$ to give us the value to tune w in accordance to error. Recal from picture above that $\nabla$ gives us the relation between error and weight difference.
+As we can notice when the difference between $U$ and ${U}'$ becomes R then $R - R = 0$ that gives us $w = w$ meaning that now our $w$ stop to change and are optimal, but if we have the difference (error) then we multiply this error by $\nabla$ to give us the value to tune w in accordance to error. Recal from picture above that $\nabla$ gives us the relation between error and weight difference.
 
 Eligibility traces resembles n-steps algorithms but here we want to track and collect gradients from several steps and apply them up to the end of an episode, see the picture:
 
@@ -383,7 +391,7 @@ Methods that learn policy and value functions separately at the same time are ca
 
 As we already know how to create policy models by using Policy Gradient Theorem and we know how to create TD($\lambda$) with Eligibility traces we can combine them into Actor and Critic.
 
-Actor TD($\lambda$):
+Actor (Episodic Policy Gradient with Eligibility Traces):
 
 ```
 # z - must be zero after each episode, I - must be 1
@@ -395,7 +403,7 @@ I = discount * I
 
 ```
 
-Critic (Episodic Policy Gradient with Eligibility Traces):
+Critic TD($\lambda$):
 
 ```
 # z - must be zero after each episode
@@ -403,9 +411,27 @@ z = discount * lambda * z + gradient(U(S, w))
 
 sigma = R + discount * U(S', w) - U(S, w)
 
-w = w + alpha * sigma * z
+w = w + alpha * sigma * z 
 
 ```
 
 Eligibility traces (z), and weight vectors (w) are different for each model, the main trick here is that Actor uses sigma (error) from Critic to build its weights.
 
+### Episodic Monte Carlo & Gradient Policy with Baseline
+
+We can build Actor-Critic Monte Carlo algorithm where error for an Actor is the actual G value minus G value that Critic predicted, (G for current state). It can help to reduce the variance:
+
+Actor (Episodic Policy Gradient)
+
+```
+w = w + alpha * discount * sigma * gradient(ln(policy(A|S, w)))  # Sigma here is the result of G minus predicted G by Critic
+
+```
+
+Critic TD
+
+```
+sigma = G - U(S, w)
+
+w = w + alpha * sigma * gradient(U(S, w))
+```
