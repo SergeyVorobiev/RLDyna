@@ -5,6 +5,7 @@ from rl.environments.mountaincar.MountainCarEnvBuilder import MountainCarEnvBuil
 from rl.environments.cartpole.CartPoleEnvBuilder import CartPoleEnvBuilder
 from rl.environments.shelter.ShelterEnvBuilder import ShelterEnvBuilder
 from rl.environments.cliffwalking.CliffWalkingEnvBuilder import CliffWalkingEnvBuilder
+from rl.environments.lunarlander.LunarLanderEnvBuilder import LunarLanderEnvBuilder
 from rl.environments.EmptyEnvBuilder import EmptyEnvBuilder
 
 
@@ -21,15 +22,19 @@ builders = {
     # 500 - 1000 episodes to see the effect
     "MountainCar": "MountainCarEnvBuilder",
 
-    # The goal is to hold up for 500 iterations then the episode naturally ends, 10000+ episodes to learn.
+    # The goal is to hold up for 500 iterations then the episode naturally ends, 10000+ episodes to learn tabular
+    # Actor-Critic can solve after 50+
     "CartPole": "CartPoleEnvBuilder",
 
-    # QAlgorithm and MCPGAverBaselineAlgorithm (that is not intended for this task)
+    # QAlgorithm and MCPGAlgorithm (that is not intended for this task)
     "Shelter": "ShelterEnvBuilder",
 
     # See the difference between SARSAAlgorithm & QAlgorithm, QAlgorithm runs by default, to set up,
     # go to cw env builder
     "CliffWalking": "CliffWalkingEnvBuilder",
+
+    # See the power of simple Actor-Critic (5000+ episodes to solve, 2000+ to see good effect)
+    "LunarLander": "LunarLanderEnvBuilder",
 
     # "BipedalWalker-v3", "LunarLander-v2", "CarRacing-v0", "Pendulum-v1", etc.
     # "AirRaid-v0", "SpaceInvaders-v0", "MsPacman-v0", ALE/Backgammon-v5 - Could require Atari emulator,
@@ -41,7 +46,7 @@ builders = {
     "ShowGame": ["EmptyEnvBuilder", "BipedalWalker-v3", True, 0]
 }
 
-builder = "CartPole"  # FrozenLake, CartPole, MountainCar, Shelter, CliffWalking, ShowGame
+builder = "LunarLander"  # FrozenLake, CartPole, MountainCar, Shelter, CliffWalking, LunarLander, ShowGame
 
 
 def build_env() -> EnvBuilder:

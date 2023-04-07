@@ -55,6 +55,9 @@ class NNBasicModel(PolicyGradientAbsModel, ABC):
     def update(self, data: Any):
         ...
 
+    def predict(self, states):
+        return self._model(tf.convert_to_tensor(states), training=False)
+
     def get_max_a(self, state: Any, model_index: int = 0):
         action_probs = self._model(np.array([state]), training=False)
         dist = Categorical(probs=action_probs, dtype=tf.float32)

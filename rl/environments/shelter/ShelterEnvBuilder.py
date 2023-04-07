@@ -17,10 +17,10 @@ iterations = 1000000
 
 env_name = "Shelter"
 
-selected_agent = "Q"  # MCPGAverBaseline, Q
+selected_agent = "Q"  # MCPG, Q
 
 agents = {
-    "MCPGAverBaseline": MCPGAgent(),
+    "MCPG": MCPGAgent(),
     "Q": ShelterTabularQAgent()
 }
 
@@ -93,7 +93,7 @@ class ShelterEnvBuilder(EnvBuilder):
 
         # build Dyna agent
         self._agent = agents[self._agent_name].build_agent(env)
-        if selected_agent == "MCPGAverBaselineAlgorithm":
+        if selected_agent == "MCPGAlgorithm":
             env.draw_values_setup(q_supplier=self._agent.get_a_distribution)
         else:
             env.draw_values_setup(q_supplier=self._agent.get_q_values)

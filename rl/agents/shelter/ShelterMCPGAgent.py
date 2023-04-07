@@ -1,5 +1,5 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.MCPGAverBaselineAlgorithm import MCPGAverBaselineAlgorithm
+from rl.algorithms.MCPGAlgorithm import MCPGAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
 from rl.models.MCPGModel import MCPGModel
@@ -22,7 +22,7 @@ class MCPGAgent(RDynaAgentBuilder):
         build_nn = lambda: ShelterNetwork.build_model(input_shape=(8, 7, 1), alpha=alpha)
 
         # Iterative algorithm
-        algorithm = MCPGAverBaselineAlgorithm(alpha=alpha, discount=discount, memory_capacity=100000)
+        algorithm = MCPGAlgorithm(alpha=alpha, discount=discount, memory_capacity=100000)
         models = [MCPGModel(n_actions=actions, nn_build_function=build_nn, model_path=self._model_path,
                             load_model=self._load_model)]
 

@@ -24,6 +24,9 @@ class Dyna(object):
         if self._planning is not None and self._allow_clear_memory:
             self._planning.clear_memory()
 
+    def get_algorithm_memory_capacity(self):
+        return self._algorithm.get_memory_capacity()
+
     def get_models(self):
         return self._models
 

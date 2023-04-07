@@ -23,7 +23,9 @@ class NNSARSALambdaAlgorithm(RAlgorithm):
 
     def pick_action(self, models: [RModel], state: Any) -> int:
         if self._next_action is not None:
-            return self._next_action
+            next_action = self._next_action
+            self._next_action = None
+            return next_action
         return self._policy.pick(self.get_q_values(models, state))
 
     def get_v(self, models: [RModel], state: Any):

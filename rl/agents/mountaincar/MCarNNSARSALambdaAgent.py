@@ -31,10 +31,10 @@ class MCarNNSARSALambdaAgent(RDynaAgentBuilder):
         alpha = 0.0001
         e_greedy = EGreedyRPolicy(0.2, threshold=0.01, improve_step=0.0002)
 
-        self._build_nn = lambda: CustomNetwork.build_linear(input_shape=(2,), output_n=actions, alpha=alpha, size=50,
+        self._build_nn = lambda: CustomNetwork.build_linear(input_shape=(2,), output_n=actions, alpha=alpha, size=200,
                                                             out="linear", custom_model_build_func=self.build_model_func,
                                                             act="relu", kernel_init=initializers.Constant(0),
-                                                            loss=CustomLoss.one_step_sarsa_lambda, run_eagerly=True)
+                                                            loss=CustomLoss.one_step_sarsa_lambda)
 
         algorithm = NNSARSALambdaAlgorithm(policy=e_greedy, alpha=alpha, discount=self._discount)
 

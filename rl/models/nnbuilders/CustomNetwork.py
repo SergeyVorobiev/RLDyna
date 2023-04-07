@@ -13,7 +13,7 @@ class CustomNetwork:
     # loss - None by default
     @staticmethod
     def build_quadratic(input_shape, output_n, alpha, act, out, kernel_init=None, bias_init=None, loss=None,
-                        optimizer=None, size=None, custom_model=None):
+                        optimizer=None, size=None, custom_model_build_func=None, run_eagerly=False):
         if size is None:
             size = [10, 10]
         if kernel_init is None:
@@ -22,13 +22,13 @@ class CustomNetwork:
         x = Dense(size[0], activation=act[0], kernel_initializer=kernel_init, bias_initializer=bias_init)(inputs)
         x = Dense(size[1], activation=act[1], kernel_initializer=kernel_init, bias_initializer=bias_init)(x)
         x = Dense(output_n, activation=out, kernel_initializer=kernel_init)(x)
-        if custom_model is None:
+        if custom_model_build_func is None:
             model = Model(inputs, x)
         else:
-            model = custom_model(inputs, x)
+            model = custom_model_build_func(inputs, x)
         if optimizer is None:
             optimizer = Adam(learning_rate=alpha)
-        model.compile(loss=loss, optimizer=optimizer)
+        model.compile(loss=loss, optimizer=optimizer, run_eagerly=run_eagerly)
         return model
 
     # kernel_init - by default GlorotUniform (Xavier)

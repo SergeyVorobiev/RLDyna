@@ -1,16 +1,16 @@
+from abc import abstractmethod
 from typing import Any
 
 from rl.algorithms.RAlgorithm import RAlgorithm
+from rl.algorithms.helpers.MCHelper import MCHelper
 from rl.models.RModel import RModel
 
 
-# Monte Carlo Policy-Gradient control
-# This algorithm shows how we can train agent avoiding using of p and q values
-class MCPGAverBaselineAlgorithm(RAlgorithm):
+# Monte Carlo
+class MCAlgorithm(RAlgorithm):
 
-    def __init__(self, alpha: float = 1, discount: float = 1, memory_capacity: int = 1, use_baseline=False):
+    def __init__(self, alpha: float = 1, discount: float = 1, memory_capacity: int = 1):
         super().__init__(alpha=alpha, discount=discount, memory_capacity=memory_capacity)
-        self._use_baseline = use_baseline
 
     def train(self, models: [RModel]) -> (float, Any):
         batch = self.get_last_memorized()
@@ -18,29 +18,33 @@ class MCPGAverBaselineAlgorithm(RAlgorithm):
 
         # So as this is a Monte Carlo we are waiting for the end of the episode
         if done:
-            model: RModel = models[0]
-            g = 0
-            x = []
-            y = []
 
             # For each sample of the episode we accumulate reward (G) and form batch to feed it to NN
             # In this case we use from end to start approach
-            k = 1
-            for state, action, reward, _, _, _ in self.get_last_memorized(self.get_memory_size()):
-                g = reward + self._discount * g
-                x.append(state)
-                y.append([int(action), float(g), self.calculate_baseline(state, g)])
-                k += 1
-            model.update((x, y))
+            # Technically we could start from start, but then we have to get the sum of rewards for every step:
+            # 1 - 5, 2 - 5, 3 - 5, 4 - 5, 5 - 5, but starting from end we just get 4, 3, 2, 1, 0
+            # and calculate discount more easily
+
+            batch = self.get_last_memorized(self.get_memory_size())
+            gs = MCHelper.build_g(batch, self._discount)
+            i = 0
+            for state, action, reward, next_state, done, props in batch:
+                self.pick_data(state, action, reward, next_state, done, gs[i][0], gs[i][1], props)
+                i += 1
+
+            self.send_data_to_model(models)
         return 0, batch
+
+    @abstractmethod
+    def pick_data(self, state, action, reward, next_state, done, state_g, state_discount, props):
+        ...
+
+    @abstractmethod
+    def send_data_to_model(self, models):
+        ...
 
     def get_a_distribution(self, models: [RModel], state: Any):
         return models[0].get_a_distribution(state)
-
-    # noinspection PyMethodMayBeStatic
-    # override in another class
-    def calculate_baseline(self, state, reward=0, state_index=1) -> float:
-        return 0.0
 
     def plan(self, models: [RModel], batch) -> (float, Any):
         pass

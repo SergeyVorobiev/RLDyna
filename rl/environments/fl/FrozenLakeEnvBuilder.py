@@ -53,7 +53,7 @@ save_model = True
 
 env_name = "FrozenLake"
 
-map_name = "grid_map1"  # grid_map1, grid_map2, grid_map3, grid_map4
+map_name = "grid_map3"  # grid_map1, grid_map2, grid_map3, grid_map4
 
 # Select agent
 selected_agent = "TabTBQN"  # TabQ, TabDQ, CNNQ, CNNDQ, TabSARSA, CNNSARSA, TabESARSA, CNNESARSA, TabNSARSA, CNNNSARSA

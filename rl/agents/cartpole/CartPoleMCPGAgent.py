@@ -1,7 +1,7 @@
 import keras
 
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.MCPGAverBaselineAlgorithm import MCPGAverBaselineAlgorithm
+from rl.algorithms.MCPGAlgorithm import MCPGAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv
 from rl.models.losses.CustomLoss import CustomLoss
@@ -19,14 +19,17 @@ class CartPoleMCPGAgent(RDynaAgentBuilder):
     def build_agent(self, env: BasicGridEnv):
         actions = env.action_space.n
         alpha = 0.001
-        discount = 0.99
+        discount = 1
 
         build_nn = lambda: CustomNetwork.build_linear(input_shape=(4,), output_n=actions, alpha=alpha, size=100,
-                                                      loss=CustomLoss.mc_policy_gradient, act="relu", out="softmax")
+                                                      loss=CustomLoss.mc_policy_gradient, act="tanh", out="softmax")
 
         # model_signatures = lambda model: MCPGNNDiscrete.get_signatures((1, 4), model)
 
-        algorithm = MCPGAverBaselineAlgorithm(alpha=alpha, discount=discount, memory_capacity=550, use_baseline=True)
+        # In Monte Carlo algorithm we perform the computation only after the episode ends.
+        # Be sure that memory_capacity is enough to accomplish the episode of the task or the algorithm
+        # will calculate the episode based on not full steps that likely does not lead to convergence.
+        algorithm = MCPGAlgorithm(discount=discount, memory_capacity=550)
         models = [MCPGModel(n_actions=actions, nn_build_function=build_nn, model_path=self._model_path,
                             load_model=self._load_model,
                             custom_load_model_func=CartPoleMCPGAgent.custom_load_model_func,

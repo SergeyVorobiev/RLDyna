@@ -8,6 +8,7 @@ from rl.ProjectPath import ProjectPath
 from rl.agents.cartpole.CPTabularQAgent import CPTabularQAgent
 from rl.agents.cartpole.CPTabularTreeBackupAgent import CPTabularTreeBackupAgent
 from rl.agents.cartpole.CartPoleMCPGAgent import CartPoleMCPGAgent
+from rl.agents.cartpole.CartPoleMCPGTDActorCriticAgent import CartPoleMCPGTDActorCriticAgent
 from rl.dyna.Dyna import Dyna
 from rl.environments.EnvBuilder import EnvBuilder
 import gym
@@ -18,7 +19,7 @@ iterations = 1000000
 
 env_name = "CartPole"
 
-selected_agent = "MCPGAverBaseline"  # TabQ, TabTBQN, MCPGAverBaseline
+selected_agent = "MCPGTDActorCritic"  # TabQ, TabTBQN, MCPG, MCPGTDActorCritic
 
 model_name_suffix = "1"
 
@@ -33,7 +34,8 @@ save_model = True
 agents = {
     "TabQ": CPTabularQAgent(path, load_model),
     "TabTBQN": CPTabularTreeBackupAgent(path, load_model),
-    "MCPGAverBaseline": CartPoleMCPGAgent(path_nn, load_model)
+    "MCPG": CartPoleMCPGAgent(path_nn, load_model),
+    "MCPGTDActorCritic":  CartPoleMCPGTDActorCriticAgent(path_nn, load_model)
 }
 
 # ======================================================================================================================
