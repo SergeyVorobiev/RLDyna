@@ -35,7 +35,3 @@ class EGreedyRPolicy(RPolicy):
     def improve(self):
         if self._epsilon > self._threshold:
             self._epsilon -= self._improve_step
-
-
-
-

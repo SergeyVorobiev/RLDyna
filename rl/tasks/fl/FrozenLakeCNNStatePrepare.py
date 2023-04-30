@@ -16,6 +16,7 @@ class FrozenLakeCNNStatePrepare(RStatePrepare):
         raw_state2 = raw_state[1]
         raw_state1 = raw_state1 * self._divider
         raw_state2 = raw_state2 * self._divider
+
         # save_input_as_image(raw_state, "PreparedState")  # save image to see resulted state for NN in resources folder
         raw_state1 = np.expand_dims(raw_state1, axis=-1)
         raw_state2 = np.expand_dims(raw_state2, axis=-1)

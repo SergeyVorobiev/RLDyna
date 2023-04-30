@@ -55,7 +55,7 @@ class CNNQModel(RModel):
                 state).max() * self._koef2
         return max(value[0]) * self._koef1 + self._get_q_values_from_main(state).max() * self._koef2
 
-    def get_a_distribution(self, state: Any, model_index: int = 0):
+    def get_action_values(self, state: Any, model_index: int = 0):
         raise NotImplementedError
 
     def get_q(self, state, action: int, model_index: int = 0):
@@ -146,7 +146,7 @@ class CNNQModel(RModel):
         q_values = self._support_model(np.array([state[0]]), training=False)
         return q_values[0].numpy()
 
-    def update(self, data: Any):
+    def update(self, data: Any, batch_size=32):
         raise NotImplementedError
 
     def save(self, path=None) -> (bool, str):

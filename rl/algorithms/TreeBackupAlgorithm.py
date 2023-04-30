@@ -40,7 +40,7 @@ class TreeBackupAlgorithm(RAlgorithm):
 
     def train_from_past(self, model: RModel, batch: Any) -> (float, Any):
         n = batch.__len__()
-        state, action, reward, next_state, done, _ = batch[0]
+        state, action, reward, next_state, done, _, _ = batch[0]
         g = reward
         expected_g = 0
         action_probability = 0
@@ -57,7 +57,7 @@ class TreeBackupAlgorithm(RAlgorithm):
             expected_g = self.__get_expected_g(q_values, action)
         model.update_q(state, action, q, done)
         for i in range(1, n):
-            state, action, reward, next_state, done, _ = batch[i]
+            state, action, reward, next_state, done, _, _ = batch[i]
             cur_g = reward + self._discount * expected_g
             g = cur_g + action_probability * g
             q_values = model.get_q_values(state)
@@ -70,5 +70,5 @@ class TreeBackupAlgorithm(RAlgorithm):
             model.update_q(state, action, q, done)
         return error, batch
 
-    def get_a_distribution(self, models: [RModel], state: Any):
+    def get_action_values(self, models: [RModel], state: Any):
         pass

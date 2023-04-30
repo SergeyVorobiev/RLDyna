@@ -10,3 +10,6 @@ class RDynaAgentBuilder(object):
     @abstractmethod
     def build_agent(self, env: Env) -> Dyna:
         ...
+
+    def reward_listener(self, reward):
+        pass

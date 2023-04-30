@@ -11,7 +11,8 @@ class EnvRenderer:
 
         # get first state of environment.
         state = env.reset()
-
+        if type(state) == tuple:
+            state = state[0]
         for i in range(iterations):
 
             env.render()
@@ -20,20 +21,30 @@ class EnvRenderer:
             action = agent.act(state)
 
             # get next state and reward from the environment according to the action.
-            next_state, reward, done, player_prop = env.step(action)
+            obs = env.step(action)
+            size = len(obs)
+            if size == 4:
+                truncated = False
+                next_state, reward, done, player_prop = obs
+            else:
+
+                # for new version of gym
+                next_state, reward, done, truncated, player_prop = obs
 
             # make the agent learn depending on the state it was, action it applied, reward it got,
             # next state it ended up.
-            agent.learn(state, action, reward, next_state, done, player_prop)
+            agent.learn(state, action, reward, next_state, done, truncated, player_prop)
 
             if iteration_complete_listener is not None:
-                iteration_complete_listener(state, action, reward, next_state, done, player_prop)
+                iteration_complete_listener(state, action, reward, next_state, done, truncated, player_prop)
 
             state = next_state
 
             # if we've achieved the goal, print some information, reset state and repeat.
             if done:
                 state = env.reset()
+                if type(state) == tuple:
+                    state = state[0]
                 agent.improve_policy()
                 agent.clear_memory()
                 if episode_done_listener is not None:

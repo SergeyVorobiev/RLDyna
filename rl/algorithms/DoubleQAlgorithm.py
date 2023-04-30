@@ -27,7 +27,7 @@ class DoubleQAlgorithm(StepControl):
         return result
 
     def train_sample(self, models: [RModel], state: Any, action: int, reward: float, next_state: Any,
-                     done: bool, env_props: Any) -> float:
+                     done: bool, truncated: bool, env_props: Any) -> float:
         model1 = models[0]
         model2 = models[1]
         if random.randrange(0, 2) == 0:

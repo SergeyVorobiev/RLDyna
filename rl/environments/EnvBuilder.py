@@ -21,7 +21,7 @@ class EnvBuilder(object):
         ...
 
     @abstractmethod
-    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, truncated, player_prop):
         ...
 
     @abstractmethod

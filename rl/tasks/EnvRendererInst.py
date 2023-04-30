@@ -1,3 +1,5 @@
+import gym
+import matplotlib
 import tensorflow as tf
 import keras
 from rl.tasks.EnvRenderer import EnvRenderer
@@ -13,6 +15,8 @@ class EnvRendererInst:
     def render(self):
         print("Tensorflow version: " + tf.__version__)
         print("Keras version: " + keras.__version__)
+        print("Gym version: " + gym.__version__)
+        print("Matplot version: " + matplotlib.__version__)
         list_gpu = tf.config.list_physical_devices('GPU')
         print("GPU Devices: ", list_gpu)
         if len(list_gpu) == 0:

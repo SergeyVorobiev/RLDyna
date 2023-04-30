@@ -26,7 +26,7 @@ class HashPlanning(RPlanning):
 
             # Just get all unique from memory
             for batch in self._memory:
-                state, action, reward, next_state, done, _ = batch[1][0]
+                state, action, reward, next_state, done, _, _ = batch[1][0]
                 hash_value = model.get_state_hash(state)
                 self._hash_bank.add(hash_value, batch)
                 if self._hash_bank.__len__() == self._plan_batch_size:

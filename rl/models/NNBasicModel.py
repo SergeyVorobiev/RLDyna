@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any
 
 import numpy as np
@@ -8,6 +8,7 @@ import tensorflow as tf
 from tensorflow_probability.python.distributions import Categorical
 
 from rl.models.PolicyGradientAbsModel import PolicyGradientAbsModel
+from rl.models.callbacks.LossCallback import LossCallback
 
 
 class NNBasicModel(PolicyGradientAbsModel, ABC):
@@ -15,7 +16,7 @@ class NNBasicModel(PolicyGradientAbsModel, ABC):
     # nn_build_function - in case if the model can not be loaded
     def __init__(self, n_actions, nn_build_function, epochs=1, model_path=None, load_model=None, model_index=0,
                  model_signatures=None, custom_save_model_func=None,
-                 custom_load_model_func=None):
+                 custom_load_model_func=None, history_listener=None, verbose=0):
         super().__init__(n_actions)
         self._nn_build_func = nn_build_function
         if model_path is not None:
@@ -24,10 +25,16 @@ class NNBasicModel(PolicyGradientAbsModel, ABC):
         self._model_index = model_index
         self._load_model = load_model
         self._epochs = epochs
+        self._history_listener = history_listener
         self._custom_save_model_func = custom_save_model_func
         self._custom_load_model_func = custom_load_model_func
         self._model_signatures = model_signatures
         self._model = self._load()
+        self._loss_callback = LossCallback()
+        self._verbose = verbose
+
+    def set_history_listener(self, history_listener):
+        self._history_listener = history_listener
 
     def save(self, path=None) -> (bool, str):
         if path is not None:
@@ -51,9 +58,18 @@ class NNBasicModel(PolicyGradientAbsModel, ABC):
         else:
             tf.saved_model.save(self._model, path)
 
-    @abstractmethod
-    def update(self, data: Any):
-        ...
+    def update(self, data: Any, batch_size=32, use_loss_callback=True, shuffle=False):
+        x = tf.convert_to_tensor(data[0])
+        y = tf.convert_to_tensor(data[1])
+        callbacks = None
+        if use_loss_callback:
+            callbacks = [self._loss_callback]
+        history = self._model.fit(x=x, y=y, epochs=self._epochs, shuffle=shuffle, batch_size=batch_size,
+                                  verbose=self._verbose,
+                                  callbacks=callbacks)
+        if self._history_listener is not None:
+            self._history_listener(history, len(x))
+        return history, self._loss_callback.loss
 
     def predict(self, states):
         return self._model(tf.convert_to_tensor(states), training=False)
@@ -63,7 +79,7 @@ class NNBasicModel(PolicyGradientAbsModel, ABC):
         dist = Categorical(probs=action_probs, dtype=tf.float32)
         return int(dist.sample())  # Get action based on the probability
 
-    def get_a_distribution(self, state: Any, model_index: int = 0):
+    def get_action_values(self, state: Any, model_index: int = 0):
         return np.array(self._model(np.array([state]), training=False)[0])
 
     def get_state_hash(self, state) -> Any:
@@ -87,3 +103,13 @@ class NNBasicModel(PolicyGradientAbsModel, ABC):
                 return self._nn_build_func()
         else:
             return self._nn_build_func()
+
+    @staticmethod
+    def add_history_loss_average(history, steps, losses_array):
+        try:
+            losses = history.history['loss']
+        except KeyError:
+            return
+        length = losses.__len__()
+        if length > 0:
+            losses_array.append(sum(losses) / length)

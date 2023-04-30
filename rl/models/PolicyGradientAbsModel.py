@@ -30,4 +30,3 @@ class PolicyGradientAbsModel(RModel, ABC):
 
     def update_q_values(self, state: Any, values, episode_done: bool, model_index: int = 0):
         raise NotImplementedError
-

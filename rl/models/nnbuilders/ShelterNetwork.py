@@ -1,16 +1,15 @@
-from keras import Input
+from keras import Input, Model
 from keras.api._v2.keras import initializers
 from keras.layers import Conv2D, BatchNormalization, Activation, MaxPooling2D, Flatten, Dense
 from keras.optimizers import Adam
 
-from rl.models.nns.MCPGNNDiscrete import MCPGNNDiscrete
+from rl.models.losses.CustomLoss import CustomLoss
 
 
-class ShelterNetwork():
+class ShelterNetwork:
 
     @staticmethod
     def build_model(input_shape, alpha):
-        bias_initializer = initializers.Constant(1)
         bias_initializer = None
         kernel_initializer = initializers.GlorotNormal()
         inputs = Input(shape=input_shape)
@@ -31,8 +30,8 @@ class ShelterNetwork():
         x = Dense(x.shape[1], activation='relu', bias_initializer=bias_initializer,
                   kernel_initializer=kernel_initializer)(x)
         x = Dense(4, activation='softmax')(x)
-        model = MCPGNNDiscrete(inputs, x)
+        model = Model(inputs, x)
 
         # run_eagerly - in case you want to debug
-        model.compile(optimizer=Adam(learning_rate=alpha), run_eagerly=True)
+        model.compile(loss=CustomLoss.mcpgd, optimizer=Adam(learning_rate=alpha), run_eagerly=False)
         return model

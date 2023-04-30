@@ -29,6 +29,7 @@ class RBaseMemory(RMemory):
             for _ in range(size):
                 _ = self._memory.pop()
 
+    # state: Any, action: int, reward: float, next_state: Any, done: bool, props: Any
     def get_last_memorized(self, size: int = 1, last_first=True) -> [Any]:
         count = 0
         result = []

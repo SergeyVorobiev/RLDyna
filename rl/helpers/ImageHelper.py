@@ -1,5 +1,3 @@
-import os
-
 from matplotlib import image
 
 from rl.ProjectPath import ProjectPath

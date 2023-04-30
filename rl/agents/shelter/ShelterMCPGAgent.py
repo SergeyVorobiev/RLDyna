@@ -1,8 +1,8 @@
 from rl.agents.RDynaAgentBuilder import RDynaAgentBuilder
-from rl.algorithms.MCPGAlgorithm import MCPGAlgorithm
+from rl.algorithms.MCPGDAlgorithm import MCPGDAlgorithm
 from rl.dyna.Dyna import Dyna
 from rl.environments.fl.BasicGridEnv import BasicGridEnv, StateType
-from rl.models.MCPGModel import MCPGModel
+from rl.models.NNBasicModel import NNBasicModel
 from rl.models.nnbuilders.ShelterNetwork import ShelterNetwork
 from rl.tasks.shelter.ShelterStateNNPrepare import ShelterStateNNPrepare
 
@@ -17,13 +17,13 @@ class MCPGAgent(RDynaAgentBuilder):
     def build_agent(self, env: BasicGridEnv):
         env.set_state_type(StateType.all_map)
         actions = env.action_space.n
-        alpha = 0.001
+        alpha = 0.0001
         discount = 1
         build_nn = lambda: ShelterNetwork.build_model(input_shape=(8, 7, 1), alpha=alpha)
 
         # Iterative algorithm
-        algorithm = MCPGAlgorithm(alpha=alpha, discount=discount, memory_capacity=100000)
-        models = [MCPGModel(n_actions=actions, nn_build_function=build_nn, model_path=self._model_path,
-                            load_model=self._load_model)]
+        algorithm = MCPGDAlgorithm(discount=discount, memory_capacity=100000)
+        models = [NNBasicModel(n_actions=actions, nn_build_function=build_nn, model_path=self._model_path,
+                               load_model=self._load_model)]
 
         return Dyna(models=models, algorithm=algorithm, state_prepare=ShelterStateNNPrepare())

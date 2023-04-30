@@ -17,8 +17,6 @@ class CPTabularQAgent(RDynaAgentBuilder):
         self._load_model = load_model
 
     def build_agent(self, env: Env):
-
-        # To avoid infinite reward growing
         discount = 0.99
 
         # For constant Reward alpha less than 1 only slow you down because average of [a, a, a, a, a] will always be a.

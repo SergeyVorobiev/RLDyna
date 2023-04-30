@@ -1,14 +1,15 @@
 import os
 from collections import deque
+from enum import Enum
 from typing import Any
-
 from gym import Env
-
 from rl.ProjectPath import ProjectPath
 from rl.agents.cartpole.CPTabularQAgent import CPTabularQAgent
 from rl.agents.cartpole.CPTabularTreeBackupAgent import CPTabularTreeBackupAgent
-from rl.agents.cartpole.CartPoleMCPGAgent import CartPoleMCPGAgent
-from rl.agents.cartpole.CartPoleMCPGTDActorCriticAgent import CartPoleMCPGTDActorCriticAgent
+from rl.agents.cartpole.CartPoleMCPGDLAgent import CartPoleMCPGDLAgent
+from rl.agents.cartpole.CartPoleMCPGDAgent import CartPoleMCPGDAgent
+from rl.agents.cartpole.CartPoleTDPGDLACAgent import CartPoleTDPGDLACAgent
+from rl.agents.cartpole.CartPoleNNSARSALambdaAgent import CartPoleNNSARSALambdaAgent
 from rl.dyna.Dyna import Dyna
 from rl.environments.EnvBuilder import EnvBuilder
 import gym
@@ -19,31 +20,46 @@ iterations = 1000000
 
 env_name = "CartPole"
 
-selected_agent = "MCPGTDActorCritic"  # TabQ, TabTBQN, MCPG, MCPGTDActorCritic
-
-model_name_suffix = "1"
-
-model_name = selected_agent + "_" + model_name_suffix
-
-path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
-path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
-
-load_model = True
-save_model = True
-
-agents = {
-    "TabQ": CPTabularQAgent(path, load_model),
-    "TabTBQN": CPTabularTreeBackupAgent(path, load_model),
-    "MCPG": CartPoleMCPGAgent(path_nn, load_model),
-    "MCPGTDActorCritic":  CartPoleMCPGTDActorCriticAgent(path_nn, load_model)
-}
 
 # ======================================================================================================================
 
 
+class CartPoleMethod(Enum):
+    TabQ = 0
+    TabTBQN = 1
+    MCPGDL = 2
+    MCPGD = 3
+    TDPGDLAC = 4
+    NNSARSALambda = 5
+
+
+def get_agent(method: CartPoleMethod, model_suffix, need_to_load):
+    model_name = method.name + "_" + str(int(model_suffix))
+    path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
+    path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
+
+    if method == CartPoleMethod.TabQ:
+        return CPTabularQAgent(path, need_to_load)
+    elif method == CartPoleMethod.TabTBQN:
+        return CPTabularTreeBackupAgent(path, need_to_load)
+    elif method == CartPoleMethod.MCPGDL:
+        return CartPoleMCPGDLAgent(path_nn, need_to_load)
+    elif method == CartPoleMethod.MCPGD:
+        return CartPoleMCPGDAgent(path_nn, need_to_load)
+    elif method == CartPoleMethod.TDPGDLAC:
+        return CartPoleTDPGDLACAgent(path_nn, need_to_load)
+    elif method == CartPoleMethod.NNSARSALambda:
+        return CartPoleNNSARSALambdaAgent(path_nn, need_to_load)
+    return None
+
+
 class CartPoleEnvBuilder(EnvBuilder):
 
-    def __init__(self):
+    def __init__(self, model_suffix, need_to_load, need_to_save, method):
+        self._model_suffix = model_suffix
+        self._need_to_load = need_to_load
+        self._need_to_save = need_to_save
+        self._method = method
         self._ep_iter = 0
         self._episodes = 0
         self._average_count = 1000
@@ -52,6 +68,8 @@ class CartPoleEnvBuilder(EnvBuilder):
         self._gaps = deque(maxlen=self._average_count)
         self._save_each_episodes = 20
         self._standard = 500
+        self._agent_builder = None
+        self._agent = None
 
     def get_iterations(self):
         return iterations
@@ -68,6 +86,7 @@ class CartPoleEnvBuilder(EnvBuilder):
     def episode_done(self, player_prop: Any):
         self._episodes += 1
         self._scores.append(self._ep_iter)
+        self._agent_builder.reward_listener(self._ep_iter)
         average = sum(self._scores) / self._scores.__len__()
         gap = self._get_gap(average)
         self._gaps.append(gap)
@@ -84,10 +103,10 @@ class CartPoleEnvBuilder(EnvBuilder):
               f"    Grow rate: {round(gap_average, 2)}   Epochs left: {epochs_count}")
         self._ep_iter = 0
 
-        if self._episodes % self._save_each_episodes == 0 and save_model:
+        if self._episodes % self._save_each_episodes == 0 and self._need_to_save:
             EnvBuilder.save_model(self._agent)
 
-    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, truncated, player_prop):
         self._ep_iter += 1
 
     def stop_render(self):
@@ -95,5 +114,6 @@ class CartPoleEnvBuilder(EnvBuilder):
 
     def build_env_and_agent(self) -> (Env, Dyna):
         env = gym.make("CartPole-v1")
-        self._agent = agents[selected_agent].build_agent(env)
+        self._agent_builder = get_agent(self._method, self._model_suffix, self._need_to_load)
+        self._agent = self._agent_builder.build_agent(env)
         return env, self._agent

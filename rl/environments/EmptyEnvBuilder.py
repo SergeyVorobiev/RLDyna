@@ -24,6 +24,8 @@ class EmptyEnvBuilder(EnvBuilder):
         self._episodes = 0
         self._print_state_info = print_state_info
         self._delay_frame = delay_frame
+        self._env = None
+        self._agent = None
 
     def get_iterations(self):
         return iterations
@@ -33,7 +35,7 @@ class EmptyEnvBuilder(EnvBuilder):
         print(f"Episode {self._episodes}: Iterations: {self._ep_iter}")
         self._ep_iter = 0
 
-    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, truncated, player_prop):
         self._ep_iter += 1
         if self._print_state_info:
             print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")

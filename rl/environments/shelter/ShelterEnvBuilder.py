@@ -1,8 +1,11 @@
+import os
 from collections import deque
+from enum import Enum
 from typing import Any
 
 from gym import Env
 
+from rl.ProjectPath import ProjectPath
 from rl.agents.shelter.ShelterTabularQAgent import ShelterTabularQAgent
 from rl.environments.fl.BasicGridEnv import DrawInfo
 from rl.environments.fl.FrozenLakeEnv import FrozenLakeEnv
@@ -16,13 +19,6 @@ from rl.environments.EnvBuilder import EnvBuilder
 iterations = 1000000
 
 env_name = "Shelter"
-
-selected_agent = "Q"  # MCPG, Q
-
-agents = {
-    "MCPG": MCPGAgent(),
-    "Q": ShelterTabularQAgent()
-}
 
 # move, fall in hole, hit a wall, finish
 rewards = [-1.0, -30.0, -2.0, 30.0]
@@ -44,8 +40,8 @@ begin_from_start_if_get_in_hole = True
 grid_map = [[[1, 1, 1, 1, 1, 1, 1],
              [1, 0, 0, 0, 0, 0, 1],
              [1, 0, 1, 1, 1, 0, 1],
-             [1, 0, 1, 1, 3, 0, 1],
-             [1, 0, 1, 1, 1, 0, 1],
+             [1, 0, 1, 0, 0, 0, 1],
+             [1, 0, 1, 3, 1, 0, 1],
              [1, 0, 1, 1, 1, 0, 1],
              [1, 4, 0, 0, 0, 0, 1],
              [1, 1, 1, 1, 1, 1, 1]], 120, 80]
@@ -53,10 +49,30 @@ grid_map = [[[1, 1, 1, 1, 1, 1, 1],
 # ======================================================================================================================
 
 
+class ShelterMethod(Enum):
+    MCPG = 0
+    Q = 1,
+
+
+def get_agent(method: ShelterMethod, model_suffix, need_to_load):
+    model_name = method.name + "_" + str(int(model_suffix))
+    path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
+    path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
+
+    if method == method.MCPG:
+        return MCPGAgent()
+    elif method == method.Q:
+        return ShelterTabularQAgent()
+    return None
+
+
 class ShelterEnvBuilder(EnvBuilder):
 
-    def __init__(self):
-        self._agent_name = selected_agent
+    def __init__(self, model_suffix, need_to_load, need_to_save, method):
+        self._model_suffix = model_suffix
+        self._need_to_load = need_to_load
+        self._need_to_save = need_to_save
+        self._method = method
         self._ep_iter = 0
         self._episodes = 0
         self._average_count = 1000
@@ -72,7 +88,7 @@ class ShelterEnvBuilder(EnvBuilder):
     def episode_done(self, player_prop: Any):
         self._episodes += 1
 
-    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, truncated, player_prop):
         self._ep_iter += 1
 
     def stop_render(self):
@@ -91,10 +107,10 @@ class ShelterEnvBuilder(EnvBuilder):
         env.draw_info(draw_info)
         env.draw_map(draw_map=need_colorize_q_map)
 
-        # build Dyna agent
-        self._agent = agents[self._agent_name].build_agent(env)
-        if selected_agent == "MCPGAlgorithm":
-            env.draw_values_setup(q_supplier=self._agent.get_a_distribution)
+        # build_acd Dyna agent
+        self._agent = get_agent(self._method, self._model_suffix, self._need_to_load).build_agent(env)
+        if self._method.name == "MCPGDL":
+            env.draw_values_setup(q_supplier=self._agent.get_action_values)
         else:
             env.draw_values_setup(q_supplier=self._agent.get_q_values)
 

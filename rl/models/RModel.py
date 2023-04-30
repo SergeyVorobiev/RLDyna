@@ -36,11 +36,15 @@ class RModel(object):
         ...
 
     @abstractmethod
+    def predict(self, states: Any) -> Any:
+        ...
+
+    @abstractmethod
     def get_max_a(self, state: Any, model_index: int = 0):
         ...
 
     @abstractmethod
-    def get_a_distribution(self, state: Any, model_index: int = 0):
+    def get_action_values(self, state: Any, model_index: int = 0):
         ...
 
     @abstractmethod
@@ -52,5 +56,5 @@ class RModel(object):
         ...
 
     @abstractmethod
-    def update(self, data: Any):
+    def update(self, data: Any, batch_size=32):
         ...

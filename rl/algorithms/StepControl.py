@@ -13,22 +13,20 @@ class StepControl(RAlgorithm):
 
     def train(self, models: [RModel]) -> (float, Any):
         batch = self.get_last_memorized()
-        state, action, reward, next_state, done, env_props = batch[0]
-        return self.train_sample(models, state, action, reward, next_state, done, env_props), batch
+        state, action, reward, next_state, done, truncated, env_props = batch[0]
+        return self.train_sample(models, state, action, reward, next_state, done, truncated, env_props), batch
 
     def plan(self, models: [RModel], batch) -> (float, Any):
-        state, action, reward, next_state, done, env_props = batch[0]
-        return self.train_sample(models, state, action, reward, next_state, done, env_props), batch
+        state, action, reward, next_state, done, truncated, env_props = batch[0]
+        return self.train_sample(models, state, action, reward, next_state, done, truncated, env_props), batch
 
     @abstractmethod
     def train_sample(self, models: [RModel], state: Any, action: int, reward: float, next_state: Any,
-                     done: bool, env_props: Any) -> float:
+                     done: bool, truncated: bool, env_props: Any) -> float:
         ...
 
     def pick_action(self, models: [RModel], state: Any) -> int:
         return self._policy.pick(self.get_q_values(models, state))
 
-    def get_a_distribution(self, models: [RModel], state: Any):
+    def get_action_values(self, models: [RModel], state: Any):
         pass
-
-

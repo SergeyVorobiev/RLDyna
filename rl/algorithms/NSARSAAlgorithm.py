@@ -11,7 +11,7 @@ class NSARSAAlgorithm(RAlgorithm):
         super().__init__(policy, alpha, discount, n_step)
         self._n_step = n_step
 
-    def get_a_distribution(self, models: [RModel], state: Any):
+    def get_action_values(self, models: [RModel], state: Any):
         pass
 
     def plan(self, models: [RModel], batch) -> (float, Any):
@@ -35,7 +35,7 @@ class NSARSAAlgorithm(RAlgorithm):
     def train_from_past(self, model: RModel, batch: Any) -> (float, Any):
         model = model
         n = batch.__len__()
-        state, action, reward, next_state, done, _ = batch[0]
+        state, action, reward, next_state, done, truncated, _ = batch[0]
         g = pow(self._discount, n - 1) * reward
         if not done:
             a = self._policy.pick(model.get_q_values(next_state))
@@ -47,7 +47,7 @@ class NSARSAAlgorithm(RAlgorithm):
         error = abs(error)
         model.update_q(state, action, q, done)
         for i in range(1, n):
-            state, action, reward, _, _, _ = batch[i]
+            state, action, reward, _, _, _, _ = batch[i]
             discounted_reward = pow(self._discount, n - 1 - i) * reward
             g = g + discounted_reward
             q = model.get_q(state, action)

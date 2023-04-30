@@ -1,6 +1,10 @@
+import os
 from collections import deque
+from enum import Enum
 from typing import Any
 from gym import Env
+
+from rl.ProjectPath import ProjectPath
 from rl.agents.cliffwalking.CWTabularQAgent import CWTabularQAgent
 from rl.agents.cliffwalking.CWTabularSARSAAgent import CWTabularSARSAAgent
 from rl.environments.fl.BasicGridEnv import DrawInfo
@@ -10,17 +14,9 @@ from rl.environments.EnvBuilder import EnvBuilder
 
 # ================================================ CONTROL PANEL =======================================================
 
-
 iterations = 1000000
 
 env_name = "CliffWalking"
-
-selected_agent = "Q"  # SARSA, Q
-
-agents = {
-    "SARSA": CWTabularSARSAAgent(),
-    "Q": CWTabularQAgent()
-}
 
 # move, fall in hole, hit a wall, finish
 rewards = [-1.0, -50.0, -1.0, 0.0]
@@ -44,13 +40,34 @@ grid_map = [[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3]], 120, 80]
 
+
 # ======================================================================================================================
+
+
+class CliffWalkingMethod(Enum):
+    SARSA = 0,
+    Q = 1,
+
+
+def get_agent(method: CliffWalkingMethod, model_suffix, need_to_load):
+    model_name = method.name + "_" + str(int(model_suffix))
+    path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
+    path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
+
+    if method == CliffWalkingMethod.SARSA:
+        return CWTabularSARSAAgent()
+    elif method == CliffWalkingMethod.Q:
+        return CWTabularQAgent()
+    return None
 
 
 class CliffWalkingEnvBuilder(EnvBuilder):
 
-    def __init__(self):
-        self._agent_name = selected_agent
+    def __init__(self, model_suffix, need_to_load, need_to_save, method):
+        self._model_suffix = model_suffix
+        self._need_to_load = need_to_load
+        self._need_to_save = need_to_save
+        self._method = method
         self._ep_iter = 0
         self._episodes = 0
         self._average_count = 1000
@@ -66,7 +83,7 @@ class CliffWalkingEnvBuilder(EnvBuilder):
     def episode_done(self, player_prop: Any):
         self._episodes += 1
 
-    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, truncated, player_prop):
         self._ep_iter += 1
 
     def stop_render(self):
@@ -85,8 +102,8 @@ class CliffWalkingEnvBuilder(EnvBuilder):
         env.draw_info(draw_info)
         env.draw_map(draw_map=need_colorize_q_map)
 
-        # build Dyna agent
-        self._agent = agents[self._agent_name].build_agent(env)
+        # build_acd Dyna agent
+        self._agent = get_agent(self._method, self._model_suffix, self._need_to_load).build_agent(env)
         env.draw_values_setup(q_supplier=self._agent.get_q_values)
 
         return env, self._agent

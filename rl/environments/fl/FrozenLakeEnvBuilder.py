@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 
 from gym import Env
 
@@ -24,7 +25,7 @@ from rl.tasks.fl.FLGrids import grid_map1, grid_map2, grid_map3, grid_map4
 # ================================================ CONTROL PANEL =======================================================
 
 # move, fall in hole, hit a wall, finish
-rewards = [-1.0, -5.0, -3.0, 30.0]
+rewards = [-1.0, -2.0, -2.0, 30.0]
 
 color_map = [[0, 255, 255], [0, 0, 255], [0, 0, 0], [255, 255, 0], [0, 255, 0], [255, 0, 0]]
 
@@ -48,57 +49,82 @@ slow_render = 0  # to see what is going on more carefully
 
 begin_from_start_if_get_in_hole = False
 
-load_model = True
-save_model = True
-
 env_name = "FrozenLake"
 
-map_name = "grid_map3"  # grid_map1, grid_map2, grid_map3, grid_map4
+map_name = "grid_map1"  # grid_map1, grid_map2, grid_map3, grid_map4
 
 # Select agent
 selected_agent = "TabTBQN"  # TabQ, TabDQ, CNNQ, CNNDQ, TabSARSA, CNNSARSA, TabESARSA, CNNESARSA, TabNSARSA, CNNNSARSA
 # TabTBQN, CNNTBQN
-
-model_name_suffix = "1"
-
-model_name = selected_agent + "_" + model_name_suffix
-
-model_name = os.path.join(map_name, model_name)
-
-path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
-path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
-
-agents = {
-    "TabQ": TabularQAgent(),
-    "CNNQ": CNNQAgent(path_nn, load_model=load_model),
-    "TabDQ": TabularDoubleQAgent(),
-    "CNNDQ": CNNDQAgent(path_nn, load_model=load_model),
-    "TabSARSA": TabularSARSAAgent(),
-    "CNNSARSA": CNNSARSAAgent(path_nn, load_model=load_model),
-    "TabESARSA": TabularESARSAAgent(),
-    "CNNESARSA": CNNESARSAAgent(path_nn, load_model=load_model),
-    "TabNSARSA": TabularNSARSAAgent(),
-    "CNNNSARSA": CNNNSARSAAgent(path_nn, load_model=load_model),
-    "TabTBQN": TabularTreeBackupAgent(),
-    "CNNTBQN": CNNTBQNAgent(path_nn, load_model=load_model)
-}
 
 iterations = 1000000
 
 # ======================================================================================================================
 
 
+class FrozenLakeMethod(Enum):
+    TabQ = 0
+    CNNQ = 1
+    TabDQ = 2
+    CNNDQ = 3
+    TabSARSA =4
+    CNNSARSA = 5
+    TabESARSA = 6
+    CNNESARSA = 7
+    TabNSARSA = 8
+    CNNNSARSA = 9
+    TabTBQN = 10
+    CNNTBQN = 11
+
+
+def get_agent(method: FrozenLakeMethod, model_suffix, need_to_load):
+    model_name = method.name + "_" + str(int(model_suffix))
+    model_name = os.path.join(map_name, model_name)
+    path = ProjectPath.join_to_table_models_path(os.path.join(env_name, model_name))
+    path_nn = ProjectPath.join_to_nn_models_path(os.path.join(env_name, model_name))
+
+    if method == FrozenLakeMethod.TabQ:
+        return TabularQAgent()
+    elif method == FrozenLakeMethod.CNNQ:
+        return CNNQAgent(path_nn, load_model=need_to_load)
+    elif method == FrozenLakeMethod.TabDQ:
+        return TabularDoubleQAgent()
+    elif method == FrozenLakeMethod.CNNDQ:
+        return CNNDQAgent(path_nn, load_model=need_to_load)
+    elif method == FrozenLakeMethod.TabSARSA:
+        return TabularSARSAAgent()
+    elif method == FrozenLakeMethod.CNNSARSA:
+        return CNNSARSAAgent(path_nn, load_model=need_to_load)
+    elif method == FrozenLakeMethod.TabESARSA:
+        return TabularESARSAAgent()
+    elif method == FrozenLakeMethod.CNNESARSA:
+        return CNNESARSAAgent(path_nn, load_model=need_to_load)
+    elif method == FrozenLakeMethod.TabNSARSA:
+        return TabularNSARSAAgent()
+    elif method == FrozenLakeMethod.CNNNSARSA:
+        return CNNNSARSAAgent(path_nn, load_model=need_to_load)
+    elif method == FrozenLakeMethod.TabTBQN:
+        return TabularTreeBackupAgent()
+    elif method == FrozenLakeMethod.CNNTBQN:
+        return CNNTBQNAgent(path_nn, load_model=need_to_load)
+    return None
+
+
 class FrozenLakeEnvBuilder(EnvBuilder):
 
-    def __init__(self):
+    def __init__(self, model_suffix, need_to_load, need_to_save, method):
+        self._model_suffix = model_suffix
+        self._need_to_load = need_to_load
+        self._need_to_save = need_to_save
+        self._method = method
         self._agent_name = selected_agent
         self._is_env_closed = None
 
     def episode_done(self, player_prop):
-        if save_model:
+        if self._need_to_save:
             EnvBuilder.save_model(self._agent)
 
-    def iteration_complete(self, state, action, reward, next_state, done, player_prop):
+    def iteration_complete(self, state, action, reward, next_state, done, truncated, player_prop):
         pass
 
     def stop_render(self):
@@ -120,8 +146,8 @@ class FrozenLakeEnvBuilder(EnvBuilder):
         env.draw_info(draw_info)
         env.draw_map(draw_map=need_colorize_q_map)
 
-        # build Dyna agent
-        self._agent = agents[self._agent_name].build_agent(env)
+        # build_acd Dyna agent
+        self._agent = get_agent(self._method, self._model_suffix, self._need_to_load).build_agent(env)
         env.draw_values_setup(q_supplier=self._agent.get_q_values)
 
         return env, self._agent

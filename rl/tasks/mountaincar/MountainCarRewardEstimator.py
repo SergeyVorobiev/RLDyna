@@ -8,7 +8,7 @@ class MountainCarRewardEstimator(RewardEstimator):
         self._max_iter = 200
 
     # Not mandatory, just for testing
-    def estimate(self, state, action, reward, next_state, done, env_props) -> float:
+    def estimate(self, state, action, reward, next_state, done, truncated, env_props) -> float:
         self._iter += 1
         if done:
             ratio = self._max_iter / self._iter

@@ -16,7 +16,7 @@ class SARSAAlgorithm(StepControl):
         pass
 
     def train_sample(self, models: [RModel], state: Any, action: int, reward: float, next_state: Any,
-                     done: bool, env_props: Any) -> float:
+                     done: bool, truncated: bool, env_props: Any) -> float:
         q = models[0].get_q(state, action)
         g = reward
         if not done:

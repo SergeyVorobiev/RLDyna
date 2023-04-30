@@ -9,7 +9,7 @@ from rl.models.nnbuilders.NNGridBuilder import NNGridBuilder
 
 class ObstacleModel(RModel):
 
-    def get_a_distribution(self, state: Any, model_index: int = 0):
+    def get_action_values(self, state: Any, model_index: int = 0):
         raise NotImplementedError
 
     def __init__(self, input_shape, n_actions, batch_size, epochs, steps_to_train=200):
@@ -67,7 +67,7 @@ class ObstacleModel(RModel):
         q_values = self._model(np.array([state[1]]), training=False)
         return q_values[0].numpy()
 
-    def update(self, data: Any):
+    def update(self, data: Any, batch_size=32):
         raise NotImplementedError
 
     def save(self, path=None) -> (bool, str):

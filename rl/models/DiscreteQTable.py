@@ -32,7 +32,7 @@ class DiscreteQTable(RModel):
         else:
             self._q_table = np.zeros(shape=([quant_size] * dimensions + [n_actions]))
 
-    def update(self, data: Any):
+    def update(self, data: Any, batch_size=32):
         raise NotImplementedError
 
     # returns table indexes
@@ -84,5 +84,5 @@ class DiscreteQTable(RModel):
         with open(path, 'wb') as f:
             np.save(f, self._q_table)
 
-    def get_a_distribution(self, state: Any, model_index: int = 0):
+    def get_action_values(self, state: Any, model_index: int = 0):
         raise NotImplementedError

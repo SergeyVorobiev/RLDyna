@@ -21,6 +21,3 @@ class ConstantRPolicy(RPolicy, ABC):
             return 1 - self.__epsilon + self.__epsilon * prob
         else:
             return self.__epsilon * prob
-
-
-
