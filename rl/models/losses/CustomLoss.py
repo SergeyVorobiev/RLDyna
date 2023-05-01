@@ -16,9 +16,9 @@ class CustomLoss:
     @staticmethod
     @tf.function()
     def mcpgd(y, policy):
-        actions = y[:, 0]
+        gs = y[:, 0]
+        actions = y[:, 1]
         actions = tf.dtypes.cast(actions, tf.int64)  # Take chosen actions
-        gs = y[:, 1]
         discount = y[:, 2]
         policy = tf.gather(policy, actions, batch_dims=1)  # Take only policies according to actions
         return -tf.math.log(policy) * gs * discount

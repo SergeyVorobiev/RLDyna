@@ -13,8 +13,6 @@ class NNSARSA(Model):
     def train_step(self, data):
         xs = data[0]
         ys = data[1]
-        g2 = ys[:, 2:ys.shape[1]]
-        # g = ys[:, 0]
         actions = ys[:, 1]
         g = ys[:, 0]
         actions = tf.cast(actions, tf.int32)

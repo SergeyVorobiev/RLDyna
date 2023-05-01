@@ -22,7 +22,6 @@ class NNSARSALambda(Model):
         xs = data[0]
         ys = data[1]
         size = tf.shape(xs)[0]
-        gs = ys[:, 1:ys.shape[1]]
 
         # Clear total grads collector
         k = 0

@@ -21,11 +21,11 @@ class CartPoleNNSARSALambdaAgent(RDynaAgentBuilder):
         self._fig, self._axis = PlotHelper.build_subplots(2, 1000, 200, width=8, height=4)
 
     def build_agent(self, env: Env):
-        n_steps = 1
+        n_steps = 2
         alpha = 0.001
         discount = 1
-        lambda_v = 0.97
-        epochs = 1
+        lambda_v = 0.95
+        epochs = 2
 
         # It will send the bunch of samples to nn to learn like 1-5, 5-10, 10-15 instead of 1-5, 2-6, 3-7 to spead up
         # the process
@@ -34,7 +34,7 @@ class CartPoleNNSARSALambdaAgent(RDynaAgentBuilder):
         # This flag converts SARSA into Q by adding maxQ tail to the end step instead of piQ.
         use_max_q = False
 
-        e_greedy = EGreedyRPolicy(0.2, threshold=0.01, improve_step=0.0001)
+        e_greedy = EGreedyRPolicy(0.15, threshold=0.01, improve_step=0.0001)
 
         sarsa_builder = LSARSA(alpha, discount, lambda_v, self._model_path, self._load_model)
 
@@ -45,7 +45,7 @@ class CartPoleNNSARSALambdaAgent(RDynaAgentBuilder):
                                              act_action="relu",
                                              l1=0.01,
                                              l2=0.01,
-                                             dropout=0.01,
+                                             dropout=0.00,
                                              batch_normalization=False,
                                              epochs=epochs,
                                              verbose=0)

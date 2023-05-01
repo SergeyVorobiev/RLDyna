@@ -12,6 +12,7 @@ from rl.environments.shelter.ShelterEnvBuilder import ShelterMethod, ShelterEnvB
 from rl.environments.cliffwalking.CliffWalkingEnvBuilder import CliffWalkingMethod, CliffWalkingEnvBuilder
 from rl.environments.lunarlander.LunarLanderEnvBuilder import LunarLanderMethod, LunarLanderEnvBuilder
 from rl.environments.lunarlandercont.LunarLanderContEnvBuilder import LunarLanderContMethod, LunarLanderContEnvBuilder
+from rl.environments.EmptyEnvBuilder import EmptyEnvBuilder
 
 
 # When the model is saved it has two indices:

@@ -23,7 +23,7 @@ class CartPoleMCPGDLAgent(RDynaAgentBuilder):
 
     def build_agent(self, env: Env):
         actions = env.action_space.n
-        alpha = 0.001
+        alpha = 0.0001
         discount = 1
         epochs = 20
         input_shape = (4,)
@@ -39,7 +39,8 @@ class CartPoleMCPGDLAgent(RDynaAgentBuilder):
         algorithm.use_critic(UseCritic.No)
 
         actor = Actors(self._model_path, self._load_model).build_discrete_lambda(input_shape, actions, 200, alpha,
-                                                                                 discount, lambda_v, epochs)
+                                                                                 discount, lambda_v, epochs,
+                                                                                 act=["relu", "relu"])
 
         actor.set_history_listener(history_listener=self._actor_history_listener)
 

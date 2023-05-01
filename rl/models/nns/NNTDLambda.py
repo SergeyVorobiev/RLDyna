@@ -40,6 +40,8 @@ class NNTDLambda(Model):
             v = tf.Variable(tf.zeros(t_vars.shape), trainable=False)
             self._total_grads.append(v)
 
+    # xs = [[state]]
+    # ys = [[g, done,...]]
     @tf.function  # AutoGraph
     def train_step(self, data):
         xs = data[0]

@@ -18,7 +18,7 @@ class NNPGDLambda(Model):
             self._total_grads.append(v)
 
     # We expect that sigma is our baseline that comes from another model without conversion (minus for asc)
-    # (x = state, y = [action, sigma, discount, done])
+    # (x = state, y = [sigma, action, discount, done])
     @tf.function  # AutoGraph
     def train_step(self, data):
         xs = data[0]
@@ -36,8 +36,8 @@ class NNPGDLambda(Model):
         while i < size:
             x = tf.convert_to_tensor([xs[i]])
             y = ys[i]
-            action = tf.dtypes.cast(y[0], tf.int64)
-            sigma = y[1]
+            sigma = y[0]
+            action = tf.dtypes.cast(y[1], tf.int64)
             pre_discount = y[2]
             done = y[3]
             with tf.GradientTape() as tape:

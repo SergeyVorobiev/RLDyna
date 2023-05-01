@@ -20,7 +20,7 @@ class MCPGDACAlgorithm(MCACAlgorithm):
 
     def pick_data(self, state, action, reward, next_state, done, truncated, state_g, state_discount, props):
         self._x.append(state)
-        self._y.append([action, state_g, state_discount, done])
+        self._y.append([state_g, action, state_discount, done])
         self._y2.append([state_g, done])
 
     def pick_action(self, models: [RModel], state: Any) -> Any:
