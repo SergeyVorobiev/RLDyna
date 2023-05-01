@@ -37,7 +37,7 @@ class CartPoleTDPGDLACAgent(RDynaAgentBuilder):
         # Speeds up TD(N), will send batch to learn in order 1-5, 5-10 instead of 1-5, 2-6, 3-7...
         clear_memory_every_n_steps = True
 
-        # 500 will mean full episode MC, now its TD(10)
+        # 500 will mean full episode MC, now its TD(5)
         memory_capacity = 5
 
         # It is useful if you have memory_capacity less than the episode steps in this case MC will automatically be

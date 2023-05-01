@@ -29,6 +29,7 @@ class MCAlgorithm(RAlgorithm):
         self._tail_method = tail_method
         self._n_learn_steps = 0
         self._steps_count = 0
+        self._last_discount = 1.0
 
     # It allows learning not when the memory is full but after specified amount of steps, for memory_capacity = 10 and
     # n_steps = 5 it will send the steps to nn as - (0-5, 0-10, 5-15, 10-20...)
@@ -55,11 +56,11 @@ class MCAlgorithm(RAlgorithm):
                 return 0, None
 
             self._steps_count = 0
-            done = done and self._terminal_state_checker(truncated, props)
+            terminal = done and self._terminal_state_checker(truncated, props)
             start_g = 0
 
             # If not done we consider that the algorithm is TD(N) and we need to add tail
-            if not done and self._tail_method is not None:
+            if not terminal and self._tail_method is not None:
                 used_tail = True
                 start_g = self._tail_method(models, n_state)
 
@@ -70,7 +71,11 @@ class MCAlgorithm(RAlgorithm):
             # and calculate discount more easily
 
             batch = self.get_last_memorized(self.get_memory_size())
-            gs = MCHelper.build_g(batch, self._discount, start_g=start_g, need_reverse=True, used_tail=used_tail)
+            gs, self._last_discount = MCHelper.build_g(batch, self._discount, start_g=start_g, need_reverse=True,
+                                                       used_tail=used_tail, last_used_discount=self._last_discount)
+            if done:
+                self._last_discount = 1.0
+
             i = 0
 
             # Reverse from start to end because we can use this as TD(N)

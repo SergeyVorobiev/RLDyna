@@ -14,10 +14,11 @@ class MCHelper:
     # memory_batch should have 'from end to start' order
     # need_reverse - if true then it converts result to be in 'from start to end' order
     # start_g is a tail U' or Q' in case if we use some form of TD(N) and the episode is not done we need to add a tail
+    # last_used_discount - continue from the discount we stop last time in case of TD(N)
     @staticmethod
-    def build_g(memory_batch: [Any], discount: float, start_g: float = 0.0,
+    def build_g(memory_batch: [Any], discount: float, start_g: float = 0.0, last_used_discount: float = 1.0,
                 need_reverse: bool = False, used_tail: bool = False) -> [[float, float]]:
-        acc_discount = 1.0
+        acc_discount = last_used_discount
         size = memory_batch.__len__()
         discounts = []
         result = []
@@ -39,8 +40,6 @@ class MCHelper:
             result.append([g, acc_discount])
         i = 0
         for _, _, reward, _, _, _, _ in memory_batch:
-            if reward == -100:
-                reward = -1
             gamma = discounts[i]
             g += reward * gamma
             result.append([g, gamma])
@@ -49,4 +48,4 @@ class MCHelper:
         # if it needs to get array from start to end order
         if need_reverse:
             result.reverse()
-        return result
+        return result, acc_discount

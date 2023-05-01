@@ -19,6 +19,7 @@ class NNSARSAAlgorithm(RAlgorithm):
         self._next_action = None
         self._next_q_max = next_q_max  # Just Q algorithm
         self._clear_memory_every_n_steps = clear_memory_every_n_steps
+        self._last_discount = 1.0
         self._x = []
         self._y = []
 
@@ -71,7 +72,10 @@ class NNSARSAAlgorithm(RAlgorithm):
             else:
                 start_g = next_q  # if we are not done yet then attach the tail Q'
                 used_tail = True
-            result = MCHelper.build_g(batch, self._discount, start_g, need_reverse=True, used_tail=used_tail)
+            result, self._last_discount = MCHelper.build_g(batch, self._discount, start_g, need_reverse=True,
+                                                           last_used_discount=self._last_discount, used_tail=used_tail)
+            if done:
+                self._last_discount = 1.0  # Reset discount, because episode is done
             batch.reverse()
 
             k = 0
