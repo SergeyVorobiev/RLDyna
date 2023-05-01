@@ -434,7 +434,6 @@ z = discount * lambda * z + gradient(Q(S, a, w))
 sigma = R + discount * Q(S', a, w) - Q(S, a, w)
 
 w = w + alpha * sigma * z
-
 ```
 
 We can see that we collect gradients into z by using fading out $\lambda$ factor, and after we compute the error $\sigma$ we multiply collection of gradients z by error and update out weights.
@@ -442,7 +441,6 @@ We can see that we collect gradients into z by using fading out $\lambda$ factor
 Possible python + tensorflow code:
 
 ```python
-
 class NNSARSALambda(Model):
 
     def __init__(self, inputs, outputs, lambda_v, **kwargs):
@@ -498,8 +496,7 @@ class NNSARSALambda(Model):
         discount = y[4]
 
         # Calculates the error = R + y * Qn(S, A, w) - Q(S, A, w)
-        return reward + discount * q_next - qs[tf.cast(action, tf.int32)]
-        
+        return reward + discount * q_next - qs[tf.cast(action, tf.int32)]   
 ```
 
 ## Actor & Critic
@@ -517,7 +514,6 @@ z = discount * lambda * z + I * gradient(ln(policy(A|S, w)))
 w = w + alpha * sigma * z
 
 I = discount * I
-
 ```
 
 Critic TD($\lambda$):
@@ -529,7 +525,6 @@ z = discount * lambda * z + gradient(U(S, w))
 sigma = R + discount * U(S', w) - U(S, w)
 
 w = w + alpha * sigma * z 
-
 ```
 
 Eligibility traces (z), and weight vectors (w) are different for each model, the main trick here is that Actor uses sigma (error) from Critic to build its weights.
@@ -542,7 +537,6 @@ Actor (Episodic Policy Gradient)
 
 ```
 w = w + alpha * discount * sigma * gradient(ln(policy(A|S, w)))  # Sigma here is the result of G minus predicted G by Critic
-
 ```
 
 Critic TD
@@ -554,3 +548,78 @@ w = w + alpha * sigma * gradient(U(S, w))
 ```
 
 ## Policy Gradient Continuous (Gaussian)
+
+For discrete actions we either learn q-values and select max one or learn probability values (softmax example) and select an action according to the given probabilities among all actions. For continuous actions commonly, we can learn standard deviation and mean and use these values to compute Gaussian probability density function, see [PDF Gaussian](https://en.wikipedia.org/wiki/Probability_density_function).
+
+We can say now that our policy can be calculated according to PDF:
+
+$$\pi(a|S, w) = \frac{1}{\sigma(S, w)\sqrt{2\pi}}e^{-\frac{1}{2}(\frac{a - \mu(S, w)}{\sigma(S, w)})}$$
+
+Important to note that value we got is not a probability it is a probability density and can be more than one, but area under the Gaussian curve is one, because sum of probabilities of all distributed actions can not exceed 1.
+
+We then can use the PDF to compute gradient:
+
+$$w = w + \alpha G \nabla ln(PDF)$$
+
+To compute $\mu$ and $\sigma$ we can use non linear / linear function where $\mu$ output should be linear and $\sigma$ output should be positive. One of the common approaches for $\sigma$ output is to use ELU+1 activation function.
+
+Python example for calculating PDF:
+
+```python
+# You need to be sure that deviation can not be 0
+degree = ((action - mean) / deviation) ** 2
+numerator = tf.exp(-0.5 * degree)
+denominator = deviation * 2.50662827463  # sqrt 2 * pi
+pdf_value = numerator / denominator
+```
+
+Or just use library:
+
+```python
+from tensorflow_probability.python.distributions import Normal
+
+pdf_value = Normal(loc=mean, scale=deviation).prob(action)
+```
+
+Possible Tensorflow train step:
+
+```python
+    # (x = state, y = [g, discount, actions]
+    @tf.function()
+    def train_step(self, data):
+        xs = data[0]
+        ys = data[1]
+        gs = ys[:, 0]
+        discounts = ys[:, 1]
+        g = tf.expand_dims(gs, axis=1)
+        discount = tf.expand_dims(discounts, axis=1)
+        size = ys.shape[1]
+        actions = ys[:, 2:size]  # to get number of actions for 2 actions it will be [2:4)
+        with tf.GradientTape() as tape:
+            mean_deviation = self(xs, training=True)
+            
+            # Here we consider that our model has separated mean & deviation vectors
+            # Will it be better to group vectors by actions? Or use the general NN for means and deviations of all actions?
+            # Array of means for each action
+            mean = mean_deviation[0] 
+            
+            # Array of deviations for each action
+            deviation = mean_deviation[1]
+
+            dist = Normal(loc=mean, scale=deviation)
+
+            # discount^t * g * ln(policy), minus for ASC, note that discount is already precalculated
+            # g also contains discount
+            loss = -dist.log_prob(actions) * g * discount
+            self.loss_tracker.update_state(tf.reduce_mean(loss))
+            grads = tape.gradient(loss, self.trainable_variables)
+
+        self.optimizer.apply_gradients(zip(grads, self.trainable_variables))
+        return {"loss": self.loss_tracker.result()}
+  ```
+
+Lunar lander means & deviations for actions, rewards is presented for the last 1000 episodes whereas means, deviations, actions for the last 1000 steps (several episodes):
+
+![llstat](https://user-images.githubusercontent.com/17081096/235491888-d5cf5f46-d36a-4d6d-9d0f-1dc679359a90.jpg)
+
+A Gaussian wave will not necessarily collapse to provide an ideal mean value as an action value with almost zero deviation, it rather finds a compromise to give a satisfactory result.
