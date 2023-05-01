@@ -5,54 +5,97 @@
 
  A little project for pyhton 3+ that shows an essence of reinforcement learning.
  
+ Resources to learn:
+ 
+ * Reinforcement Learning An introduction Second edition, Richard S. Sutton & Andrew J. Barto, book. 
+ 
+ * Deep Mind intro to RL, David Silver https://youtu.be/2pWv7GOvuf0
+ 
+ * Deep Mind intro to RL, Hado Van Hasselt https://youtu.be/ISk80iLhdfU
+ 
+ Main libraries:
+ 
+ * tensorflow 2.12.0
+ * keras 2.12.0
+ * gym 0.21.0
+ * matplotlib 3.7.1
+ 
  The project uses 'graphics' module that can be installed automatically from PyCharm or by using - *pip install graphics*, and gym - *pip install gym*.
  
- To use NN you need to install tensorflow + keras, the project uses 2.11v for both, depending on your versions, you probably will need to reimport some packages        related to the versions of this libraries and also install CUDA.
+ To use NN you need to install tensorflow + keras, depending on your versions, you probably will need to reimport some packages related to the versions of this libraries and also install CUDA.
  
  **Frozen Lake:**
  
- * **temporal difference off policy control tabular Q-learning** method + simple CNN.
+ * **Temporal Difference off policy control tabular Q-learning** method + simple CNN.
  
- * **temporal difference on policy control tabular n-steps tree backup Q-learning** method + simple CNN.
+ * **Temporal Difference on policy control tabular n-steps Tree Backup Q-learning** method + simple CNN.
  
- * **temporal difference off policy control tabular Double Q-learning** method + simple CNN.
+ * **Temporal Difference off policy control tabular Double Q-learning** method + simple CNN.
  
- * **temporal difference on policy control tabular n-steps SARSA** method + simple CNN.
+ * **Temporal Difference on policy control tabular n-steps SARSA** method + simple CNN.
  
- * **temporal difference on policy control tabular SARSA** method + simple CNN.
+ * **Temporal Difference on policy control tabular SARSA** method + simple CNN.
  
- * **temporal difference on policy control tabular Expected SARSA** method + simple CNN.
+ * **Temporal Difference on policy control tabular Expected SARSA** method + simple CNN.
  
  **Cart Pole:**
  
- * **temporal difference off policy control tabular Q-learning** method.
+ * **Temporal Difference off policy control tabular Q-learning** method.
  
- * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
+ * **Temporal Difference on policy control tabular n-steps tree backup Q-learning** method.
  
- * **Monte Carlo Policy Gradient** method.
+ * **Monte Carlo + Policy Gradient Discrete** method.
  
- * **nonlinear Monte Carlo with baseline, Policy Gradient Actor with TD Critic** method.
+ * **Monte Carlo + Policy Gradient Discrete with Eligibility Traces** method.
+ 
+ * **Temporal Difference NN Critic + Policy Gradient Discrete Actor** method.
+ 
+ * **NN SARSA with Eligibility Traces** method.
  
  **Mountain Car:**
  
- * **temporal difference on policy control tabular n-steps tree backup Q-learning** method.
+ * **Temporal Difference on policy control tabular n-steps Tree Backup Q-learning** method.
  
- * **SARSA($\lambda$) nonlinear temporal difference with Eligibility Traces** method.
+ * **NN SARSA with Eligibility Traces** method.
  
  **Shelter:**
  
- * **temporal difference off policy control tabular Q-learning** method.
+ * **Temporal Difference off policy control tabular Q-learning** method.
  
  **Cliff Walking:** *(See the difference between SARSA & Q)*
  
- * **temporal difference off policy control tabular Q-learning** method.
+ * **Temporal Difference off policy control tabular Q-learning** method.
  
- * **temporal difference on policy control tabular SARSA** method.
+ * **Temporal Difference on policy control tabular SARSA** method.
  
  **Lunar Lander:**
  
- * **nonlinear Monte Carlo with baseline, Policy Gradient Actor with TD Critic** method.
+ * **Monte Carlo + Policy Gradient Discrete** method.
  
+ * **NN SARSA with Eligibility Traces** method.
+ 
+ * **Temporal Difference NN Critic + Policy Gradient Discrete Actor** method.
+ 
+ **Lunar Lander Continuous:**
+ 
+ * **Monte Carlo + Policy Gradient Continuous (Gaussian)** method.
+ 
+ * **Temporal Difference NN Critic + Policy Gradient Continuous (Gaussian) Actor** method.
+ 
+ **MDP Bonus:**
+ 
+ * **Car Transfer**
+ 
+ ![carTransferSmall](https://user-images.githubusercontent.com/17081096/235431725-2579bf76-2c48-4c34-99a4-8c649245276b.jpg)
+ 
+ * **Grid World**
+ 
+ ![gridWorld](https://user-images.githubusercontent.com/17081096/235431751-3982281d-f647-4481-9c97-2028110159bd.jpg)
+
+ * **Arm Bandit**:
+ 
+ ![ArmBandit](https://user-images.githubusercontent.com/17081096/235431772-009c6519-3e27-4b0d-b23d-c01c29c7aaa1.jpg)
+
  The entry point (main) *GymMain.py*.
  
  Different algorithms for testing (SARSA, MonteCarlo, DQ, TreeBackup, QSigma etc.) can be added by extending from *StepControl.py* or *RAlgorithm.py* abstractions.
@@ -139,7 +182,7 @@ And for the last iteration it gets **$U(S0) = 1 * 1 * (-1R + 1 * 8R) = 7R$**. Fu
 ### Discount
 As we see if $\gamma = 1$, it does not have an effect, but for tasks with long continuous nature we possibly want to decrease the influence of the state values that are far away from our current state. The less the $\gamma$ the more we focus only on the values of the states that are close to us. for example if $\gamma = 0$ you can see that all the further values of the next states will cancel out because $0 * U(S') = 0$, and we will only consider the value of the next R by doing the transition to the next state.
 
-There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common **off policy Q-learning** approach, to avoid to mess up with evaluating policy. Q-learning allows us to choose an action greedily, according to the current action value (Q-value) and calculates transitions step by step.
+There are many modifications of the Bellman equation and different algorithms about how to utilize U-values and evaluate policy. In our *Frozen Lake* example we are using a simple and common **off policy Q-learning** approach, to avoid to mess up with evaluating policy. Q-learning allows us to choose an action greedily, according to the current action value (Q-value) and calculate transitions step by step.
 
 ## Q values
 
@@ -156,7 +199,7 @@ Similar to the U formula, the Q looks like this: **$$Q(S,a) = Q(S,a) + \alpha (R
 **$$\pi(S) = argmax_{a} Q_{\pi}(S, a)$$**
 We see now that according to using maxQ for every further state along the path, our Q will have the maximum possible value for every state-action pair, and our policy now is to choose an action with maximum q-value.
 
-But now we encounter the problem, if we choose the action with maximum Q value we could end up with a non optimal result. If we can get some positive Q value for an action, we will not use actions that lead to unvisited states because their Qs = 0. Or imagine some states could give us random rewards with some probability distribution. We could have -1 for the first state and -2 for the second, but despite the fact that the second state could have the better distribution mean, we will always choose the first state, because we choose Q greedily. That leads us to the **Epsilon Greedy** algorithm.
+But now we encounter the problem, if we choose the action with maximum Q value we could end up with a non optimal result. If we can get some positive Q value for an action, we will not use actions that lead to unvisited states because their Qs = 0. Or imagine some states could give us random rewards with some probability distribution. We could have -1 for the first state and -2 for the second, but despite the fact that the second state could have the better distribution mean, we will always choose an action leading to the first state, because we choose Q greedily. That leads us to the **Epsilon Greedy** algorithm.
 
 ### Epsilon Greedy
 
@@ -221,6 +264,80 @@ One step off-policy SARSA can look like this:
 
 In tasks like CartPole and MountainCar we can easily use table q-values approaches as our actions are discrete and states have small dimensions. In fact we rather prefer tables because it's easy, gives precision, speed and the convergence to the optima are guaranteed. But for tasks like BipedalWalker we not only have many dimensional continuous states, which are hard to fit into a discrete table, but also have action space with evenly distributed values.
 We now need to consider some linear / non linear weight functions for both states and actions.
+
+## Understanding SGD (Stochastic Gradient Descent) Algorithms
+
+Instead of a table we now use a function that gets a *State* as a number of features (input) *x(S)* and converts an input into an output by using weights, see ANN picture above. Such a function usually can not provide the exact value for every state because the number of weights is very limited compared to the number of states, it rather gives the average satisfactory result for the more frequently emerging states (because more valuable states will emerge more often than others).
+
+Linear approaches use only the transfer function: $$\sum w_{i}x_{i}(S) = w^{T}x(S) = U(S, w)$$.
+The derivative of $\sum w_{i}x_{i}(S)$ with respect to w as you see is $x(S)$, so: $$\nabla U(S, w) = x(S)$$
+We do not need hidden layers in this case, because there is nothing to twist all products of linear will be linear. Linear methods guarantee convergence, but the problem is that we need to create appropriate feature vectors to describe all possible configurations of a state in linear terms to perform proper computations.
+
+For nonlinear functions we introduce activation functions that gives non linearity, ideally this behavior should construct appropriate features from a state and perform proper computations automatically, but due to tuning weights for one state we affect on result for another state, nonlinear functions not always guarantee convergence and can fall to local optima. The classic example of nonlinearity is XNOR which gives 1 for 0-0, 0 for 1-0, 0 for 0-1, 1 for 1-1.
+
+At start we initialize weights for our function, usually randomly. The function will then give a random result as an output for a given feature vector of a state as an input (Forward propagation).
+We then compare our predicted output with the real output and get the error. We get relation between speed of changing the inputs and outputs by using (SGD) and tune our weights (Back propagation):
+
+$$w = w - \frac{1}{2} \alpha \nabla [U(S) - U(S, w)]^{2}$$
+
+$$w = w - \frac{1}{2} * 2 \alpha [U(S) - U(S, w)] \nabla [U(S) - U(S, w)]$$
+
+$$w = w + \alpha[U(S) - U(S, w)]\nabla U(S, w)$$
+
+For one step:
+
+$$U(S) = R + U'(S)$$
+
+For full episode (Monte Carlo):
+
+$$w = w + \alpha[G - U(S, w)]\nabla U(S, w)$$
+
+Where G is a sum of all rewards:
+
+$$G = \sum_{t=1}^{T} \gamma^{t-1}R_{t}$$
+
+We can replace $U'$ by $Q'$, in $U(S) = R + U'(S)$ as a tail instead of $U'$ we add $Q_{max}^{'}$ or for SARSA $Q_{\pi}^{'}$:
+
+**$$w = w + \alpha[R + Q_{max}^{'}(S, a, w) - Q(S, a, w)]\nabla Q(S, a, w)$$**
+
+Basically for n-step algorithms we just gather G as for Monte Carlo, and if the number of steps is equal to number of steps in the episode then we got Monte Carlo if not we add a tail U' or Q' and the algorithm turns to TD(N) or Q(N) or SARSA(N) etc.
+
+#### Why we should use $\gamma^{t-1}$ instead of just $\gamma$ when we gather G?
+
+Let's unfold first three steps of the TD algorithm:
+
+$U_{0} = R_{1} + \gamma U_{1}$
+
+$U_{1} = R_{2} + \gamma U_{2}$
+
+$U_{2} = R_{3} + \gamma U_{3}$
+
+$U_{1} = R_{2} + \gamma (R_{3} + \gamma U_{3})$
+
+$U_{0} = R_{1} + \gamma(R_{2} + \gamma (R_{3} + \gamma U_{3}))$
+
+$U_{0} = R_{1} + \gamma R_{2} + \gamma^{2} (R_{3} + \gamma U_{3})$
+
+$U_{0} = R_{1} + \gamma R_{2} + \gamma^{2} R_{3} + \gamma^{3} U_{3}$
+
+
+### Calculate $\nabla$ by using Tensorflow
+
+Let's consider the function $f(x) = x^{3}$, then $f'(x) = 3x^{2}$
+
+For $x = 2$ we get $3*2^{2}=12$
+
+```python
+x = tf.convert_to_tensor(2.0)
+with tf.GradientTape() as tape:
+
+    # We do not need to watch trainable weights if we predict values inside, as for example:
+    # model(x, training=True / False) - weights here will be watched by default
+    tape.watch(x)  
+    y = x * x * x
+    val1 = tape.gradient(y, x)  # 12
+    val2 = tape.gradient(2.0 * y, x)  # 24
+```
 
 ## Policy Gradient
 
@@ -435,3 +552,5 @@ sigma = G - U(S, w)
 
 w = w + alpha * sigma * gradient(U(S, w))
 ```
+
+## Policy Gradient Continuous (Gaussian)
