@@ -1,5 +1,8 @@
 from enum import Enum
 
+from rl.bonus.bandit import BanditMain
+from rl.bonus.cartransfer import CarTransferMain
+from rl.bonus.gridworld import GridWorldMain
 from rl.tasks.EnvRendererInst import EnvRendererInst
 from rl.environments.EnvBuilder import EnvBuilder
 from rl.environments.fl.FrozenLakeEnvBuilder import FrozenLakeMethod, FrozenLakeEnvBuilder
@@ -9,6 +12,7 @@ from rl.environments.shelter.ShelterEnvBuilder import ShelterMethod, ShelterEnvB
 from rl.environments.cliffwalking.CliffWalkingEnvBuilder import CliffWalkingMethod, CliffWalkingEnvBuilder
 from rl.environments.lunarlander.LunarLanderEnvBuilder import LunarLanderMethod, LunarLanderEnvBuilder
 from rl.environments.lunarlandercont.LunarLanderContEnvBuilder import LunarLanderContMethod, LunarLanderContEnvBuilder
+
 
 # When the model is saved it has two indices:
 # 1 is model_name_suffix and can be edited from GameNameEnvBuilder
@@ -21,6 +25,10 @@ from rl.environments.lunarlandercont.LunarLanderContEnvBuilder import LunarLande
 # 1 HAS SLOWER VISUAL RENDERING
 # 2 HAS PROBLEMS WITH ATARI
 class Game(Enum):
+    Bandit = -1
+    CarTransfer = -2
+    GridWorld = - 3
+
     ShowGame = 0
     FrozenLake = 1
     MountainCar = 2
@@ -69,11 +77,10 @@ def build_env() -> EnvBuilder:
         li = builders[builder.name]
         return globals()[li[0]](li[1], li[2], li[3], li[4])
 
+
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 builder = Game.LunarLander
-
 
 # **********************************************************************************************************************
 
@@ -82,4 +89,11 @@ builder = Game.LunarLander
 # gym 0.21.0
 # matplotlib 3.7.1
 if __name__ == '__main__':
-    EnvRendererInst(build_env()).render()
+    if builder == builder.Bandit:
+        BanditMain.run()
+    elif builder == builder.GridWorld:
+        GridWorldMain.run()
+    elif builder == builder.CarTransfer:
+        CarTransferMain.run()
+    else:
+        EnvRendererInst(build_env()).render()

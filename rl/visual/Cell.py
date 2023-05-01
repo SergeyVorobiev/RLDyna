@@ -20,10 +20,10 @@ class Cell(Visual):
         self._text_size = 8
         self.max_q = 0
         self.max_action_name = ""
-        self.v = 0
+        self.v = 0.0
         self.qs = []
         self.a_labels = []
-        self.optimal_q = 0
+        self.optimal_q = 0.0
         self.actions: [Action] = []
         self.optimal_actions_count = 0
         self.pos_x = pos_x
@@ -78,6 +78,22 @@ class Cell(Visual):
                         tqs.append(round(q, self.round_number))
                     text += "\n" + "q: " + str(tqs)
                 text += "\n" + str(round(self.max_q, self.round_number)) + " " + self.a_labels[self.max_action]
+            self.label.setText(text)
+
+    def update_v_text(self):
+        if self.draw_text:
+            text = self.state_name
+            if self.v is None:
+                self.v = 0
+            text += "\n" + "v: " + str(round(self.v, self.round_number))
+            self.label.setText(text)
+
+    def update_opt_q_text(self):
+        if self.draw_text:
+            text = self.state_name
+            if self.optimal_q is None:
+                self.optimal_q = 0
+            text += "\n" + "q: " + str(round(self.optimal_q, self.round_number))
             self.label.setText(text)
 
     def update_text(self):

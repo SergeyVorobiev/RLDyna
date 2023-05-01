@@ -10,8 +10,8 @@ import numpy as np
 
 from rl.visual import VisualGrid
 from rl.visual.Cell import Cell
+from rl.visual.Colorizer import Colorizer
 from rl.visual.DrawGrid import DrawGrid
-from rl.visual.GridWorldPolicy import update_policy_colors_grid
 
 road = 0
 hole = 1
@@ -353,7 +353,7 @@ class BasicGridEnv(Env):
     def __update_values(self, q_supplier, u_supplier, draw_map = False, draw_path = False):
         if draw_map and self._draw_map_limiter > self._draw_map_frame_skip:
             self._draw_map_limiter = 0
-            update_policy_colors_grid(grid=self.__visual_grid, cell_value_func=self.__get_cell_value)
+            Colorizer.update_value_colors_grid(grid=self.__visual_grid, cell_value_func=self.__get_cell_value)
             self.__visual_grid[self.__position[0]][self.__position[1]].set_color_and_update(255, 0, 0)
         if q_supplier is not None or u_supplier is not None:
             for row in self.__visual_grid:
